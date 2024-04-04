@@ -7,6 +7,10 @@ import csx55.dfs.node.Node;
 import csx55.dfs.wireformats.Event;
 import csx55.dfs.wireformats.EventFactory;
 
+
+/*
+Receiver thread spins on a socket, sends Events to onEvent()
+ */
 public class TCPReceiverThread implements Runnable {
 
     private final Node node;

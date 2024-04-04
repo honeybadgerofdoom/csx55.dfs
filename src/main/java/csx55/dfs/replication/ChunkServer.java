@@ -9,6 +9,10 @@ import csx55.dfs.transport.TCPSender;
 import java.net.*;
 import java.io.*;
 
+
+/*
+ChunkServer stored chunks for files, manages replication and retrieval
+ */
 public class ChunkServer implements Node {
 
     private Socket socketToController;
@@ -23,6 +27,10 @@ public class ChunkServer implements Node {
         this.controllerPortNumber = controllerPortNumber;
     }
 
+
+    /*
+    Setup objects, TCP connections
+     */
     public void doWork() {
         assignIpAddress();
         assignServerSocketAndPort();
@@ -31,6 +39,10 @@ public class ChunkServer implements Node {
         registerSelf();
     }
 
+
+    /*
+    Get IP address, store it
+     */
     private void assignIpAddress() {
         try {
             InetAddress addr = InetAddress.getLocalHost();
@@ -40,6 +52,10 @@ public class ChunkServer implements Node {
         }
     }
 
+
+    /*
+    Get port, initialize ServerSocket
+     */
     private void assignServerSocketAndPort() {
         try {
             this.serverSocket = new ServerSocket(0);
@@ -49,6 +65,9 @@ public class ChunkServer implements Node {
         }
     }
 
+    /*
+    Connect to the Controller node, spin up TCPReceiverThread
+     */
     private void connectToController() {
         try {
             this.socketToController = new Socket(controllerIpAddress, controllerPortNumber);
@@ -60,6 +79,10 @@ public class ChunkServer implements Node {
         }
     }
 
+
+    /*
+    Send a RegisterRequest to the Controller
+     */
     private void registerSelf() {
         try {
             TCPSender tcpSender = new TCPSender(this.socketToController);
@@ -71,10 +94,10 @@ public class ChunkServer implements Node {
         }
     }
 
-    public ServerSocket getServerSocket() {
-        return this.serverSocket;
-    }
 
+    /*
+    Handle incoming Events from TCPReceiverThread
+     */
     public void onEvent(Event event) {
         if (event != null) {
             int type = event.getType();
@@ -88,10 +111,18 @@ public class ChunkServer implements Node {
         }
     }
 
+
+    /*
+    Handle Poke Event
+     */
     private void handlePoke(Poke poke) {
         System.out.println("Received poke: '" + poke.getMessage() + "'");
     }
 
+
+    /*
+    Write a byte[] to local storage
+     */
     private void write(byte[] file, String writePath) {
         File outputFile = new File(writePath);
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
@@ -101,12 +132,19 @@ public class ChunkServer implements Node {
         }
     }
 
-
     @Override
     public String toString() {
         return "Implement ChunkServer toString()";
     }
 
+    public ServerSocket getServerSocket() {
+        return this.serverSocket;
+    }
+
+
+    /*
+    Entrypoint
+     */
     public static void main(String[] args) {
         if (args.length == 2) {
             String controllerIpAddress = args[0];

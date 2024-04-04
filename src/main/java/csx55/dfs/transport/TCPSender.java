@@ -5,6 +5,10 @@ import java.io.DataOutputStream;
 
 import java.io.IOException;
 
+
+/*
+Sends TCP transmissions
+ */
 public class TCPSender {
 
     private DataOutputStream dout;
