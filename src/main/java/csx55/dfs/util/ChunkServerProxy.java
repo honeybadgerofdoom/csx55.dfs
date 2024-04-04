@@ -79,6 +79,19 @@ public class ChunkServerProxy {
 
 
     /*
+    Print out ChunkMetadata associated with this ChunkServerProxy
+     */
+    public String printChunkMetadata() {
+        String rtn = "Chunk Metadata: {\n";
+        for (ChunkMetadata chunkMetadata : chunkList) {
+            rtn +=  "\t" + chunkMetadata + "\n";
+        }
+        rtn += "}";
+        return rtn;
+    }
+
+
+    /*
     Formats members into a table row
      */
     @Override
