@@ -4,6 +4,10 @@ import csx55.dfs.replication.Client;
 
 import java.util.Scanner;
 
+
+/*
+Manage the CLI for a Client
+ */
 public class ClientCLIManager implements Runnable {
 
     private Client client;
@@ -12,6 +16,10 @@ public class ClientCLIManager implements Runnable {
         this.client = client;
     }
 
+
+    /*
+    This thread's run() method reads from a Scanner object listening on System.in
+     */
     public void run() {
         String input = "";
         Scanner sc = new Scanner(System.in);
@@ -22,6 +30,10 @@ public class ClientCLIManager implements Runnable {
         System.exit(0);
     }
 
+
+    /*
+    Processing CLI input on carriage return
+     */
     public void processInput(String input) {
         String[] parsedInput = input.split(" ");
         String command = parsedInput[0];

@@ -2,6 +2,10 @@ package csx55.dfs.wireformats;
 
 import java.io.*;
 
+
+/*
+Allows ChunkServers to register with the Controller
+ */
 public class RegisterRequest extends Event {
 
     String ipAddress;

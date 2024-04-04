@@ -7,6 +7,11 @@ import java.io.DataInputStream;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
+
+/*
+Factory class for Events
+Singleton
+ */
 public class EventFactory {
 
     private final static EventFactory EventFactoryInstance = new EventFactory();

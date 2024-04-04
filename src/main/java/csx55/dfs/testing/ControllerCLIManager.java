@@ -4,6 +4,11 @@ import csx55.dfs.replication.Controller;
 
 import java.util.Scanner;
 
+
+/*
+CLI for the Controller node
+For testing/debugging only
+ */
 public class ControllerCLIManager implements Runnable {
 
     private Controller controller;
@@ -12,6 +17,10 @@ public class ControllerCLIManager implements Runnable {
         this.controller = controller;
     }
 
+
+    /*
+    Run method for the thread
+     */
     public void run() {
         String input = "";
         Scanner sc = new Scanner(System.in);
@@ -22,6 +31,10 @@ public class ControllerCLIManager implements Runnable {
         System.exit(0);
     }
 
+
+    /*
+    Process CLI input
+     */
     public void processInput(String input) {
         String[] parsedInput = input.split(" ");
         String command = parsedInput[0];

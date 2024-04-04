@@ -5,6 +5,10 @@ import csx55.dfs.wireformats.Protocol;
 
 import java.io.IOException;
 
+
+/*
+For debugging network connections
+ */
 public class Poke extends Event {
 
     private String message;

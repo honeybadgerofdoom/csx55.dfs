@@ -5,6 +5,10 @@ import java.net.Socket;
 import java.io.IOException;
 import java.net.SocketException;
 
+
+/*
+Server thread creates vanilla sockets, spawns TCPReceiverThreads
+ */
 public class TCPServerThread implements Runnable {
 
     private final Node node;

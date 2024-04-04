@@ -2,6 +2,11 @@ package csx55.dfs.wireformats;
 
 import java.io.*;
 
+
+/*
+Abstract superclass defines behavior for Events
+Implements helpers for marshalling/unmarhsalling data
+ */
 public abstract class Event {
 
     private final int messageType;
