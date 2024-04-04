@@ -29,6 +29,9 @@ public class ControllerCLIManager implements Runnable {
             case "poke":
                 controller.pokeChunkServers();
                 break;
+            case "chunk-servers":
+                controller.printChunkServers();
+                break;
             default:
                 System.out.println("Invalid CLI Input: " + input);
         }

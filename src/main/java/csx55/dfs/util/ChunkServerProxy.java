@@ -11,14 +11,15 @@ public class ChunkServerProxy {
 
     private final String id;
     private final ChunkMetadata chunkMetadata;
-    private double spaceLeft;
+    private int spaceLeft;
     private TCPSender tcpSender;
 
     public ChunkServerProxy(String ipAddress, int portNumber) {
         this.id = ipAddress + ":" + portNumber;
         initializeTCPSender(ipAddress, portNumber);
         this.chunkMetadata = new ChunkMetadata();
-        this.spaceLeft = 1024 * 1024;
+//        this.spaceLeft = Configs.GB;
+        this.spaceLeft =  (60 * Configs.MB) + (17 * Configs.KB);
     }
 
     private void initializeTCPSender(String ipAddress, int portNumber) {
@@ -42,6 +43,26 @@ public class ChunkServerProxy {
                 System.out.println("Failed to write to socket " + id);
             }
         }
+    }
+
+    private String formatSpaceLeft() {
+        if (spaceLeft == Configs.GB) return "1 GB";
+        if (spaceLeft > Configs.MB) {
+            int mb = Math.floorDiv(spaceLeft, Configs.MB);
+            int kb = spaceLeft % Configs.MB;
+            return mb + " MB " + kb + " KB";
+        }
+        if (spaceLeft > Configs.KB) {
+            int kb = Math.floorDiv(spaceLeft, Configs.KB);
+            int b = spaceLeft % Configs.KB;
+            return kb + " KB " + b + " B";
+        }
+        return spaceLeft + " B";
+    }
+
+    @Override
+    public String toString() {
+        return String.format("| %-17s | %17s |", id, formatSpaceLeft());
     }
 
 }

@@ -58,6 +58,10 @@ public class Controller implements Node {
         chunkServerManager.sendToAllChunkServers(poke);
     }
 
+    public void printChunkServers() {
+        System.out.println(chunkServerManager);
+    }
+
     public void manageCLI() {
         ControllerCLIManager cliManager = new ControllerCLIManager(this);
         Thread thread = new Thread(cliManager);

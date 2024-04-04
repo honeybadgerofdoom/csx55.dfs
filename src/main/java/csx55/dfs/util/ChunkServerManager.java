@@ -25,4 +25,31 @@ public class ChunkServerManager {
         }
     }
 
+    @Override
+    public String toString() {
+        String tableString = "";
+        String horizontalTablePiece = "";
+        int numDashes = 19;
+        for (int i = 0; i < numDashes; i++) {
+            horizontalTablePiece += "-";
+        }
+        String tableCorner = "+";
+        String tableLine = tableCorner;
+        int numCols = 2;
+        for (int i = 0; i < numCols; i++) {
+            tableLine += horizontalTablePiece + tableCorner;
+        }
+        tableString += tableLine + "\n";
+        tableString += String.format("| %-17s | %17s |", "ID", "Space Left") + "\n";
+        tableString += tableLine + "\n";
+
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            tableString += chunkServerProxy + "\n";
+        }
+
+        tableString += tableLine;
+
+        return tableString;
+    }
+
 }
