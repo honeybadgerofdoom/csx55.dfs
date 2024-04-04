@@ -3,7 +3,9 @@ package csx55.dfs.replication;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import csx55.dfs.cli.ClientCLIManager;
 import csx55.dfs.node.Node;
+import csx55.dfs.testing.ControllerCLIManager;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.util.ChunkServerManager;
 import csx55.dfs.wireformats.*;
@@ -22,6 +24,7 @@ public class Controller implements Node {
     public void doWork() {
         assignServerSocket();
         startTCPServerThread();
+        manageCLI();
     }
 
     private void assignServerSocket() {
@@ -53,6 +56,12 @@ public class Controller implements Node {
     public void pokeChunkServers() {
         Poke poke = new Poke("Hello from Controller");
         chunkServerManager.sendToAllChunkServers(poke);
+    }
+
+    public void manageCLI() {
+        ControllerCLIManager cliManager = new ControllerCLIManager(this);
+        Thread thread = new Thread(cliManager);
+        thread.start();
     }
 
     public static void main(String[] args) {

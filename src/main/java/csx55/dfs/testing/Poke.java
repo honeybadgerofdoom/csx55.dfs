@@ -18,6 +18,10 @@ public class Poke extends Event {
         super(bytes);
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     @Override
     protected void marshall() throws IOException {
         marshallString(message);
