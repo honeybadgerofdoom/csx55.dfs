@@ -1,6 +1,7 @@
 package csx55.dfs.replication;
 
 import csx55.dfs.node.Node;
+import csx55.dfs.testing.Poke;
 import csx55.dfs.wireformats.*;
 import csx55.dfs.transport.TCPReceiverThread;
 import csx55.dfs.transport.TCPSender;
@@ -78,10 +79,17 @@ public class ChunkServer implements Node {
         if (event != null) {
             int type = event.getType();
             switch (type) {
+                case Protocol.POKE:
+                    handlePoke((Poke) event);
+                    break;
                 default:
                     System.out.println("onEvent couldn't handle event type " + type);
             }
         }
+    }
+
+    private void handlePoke(Poke poke) {
+        System.out.println("Received poke: '" + poke.getMessage() + "'");
     }
 
     private void write(byte[] file, String writePath) {
