@@ -6,6 +6,10 @@ import csx55.dfs.wireformats.RegisterRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/*
+Manages access to ChunkServers via ChunkServerProxies
+ */
 public class ChunkServerManager {
 
     private final List<ChunkServerProxy> chunkServers;
@@ -14,17 +18,29 @@ public class ChunkServerManager {
         this.chunkServers = new ArrayList<>();
     }
 
+
+    /*
+    Adds a newly registered ChunkServer
+     */
     public void add(RegisterRequest registerRequest) {
         ChunkServerProxy chunkServerProxy = new ChunkServerProxy(registerRequest.getIpAddress(), registerRequest.getPortNumber());
         this.chunkServers.add(chunkServerProxy);
     }
 
+
+    /*
+    Send any Event to every ChunkServer
+     */
     public void sendToAllChunkServers(Event event) {
         for (ChunkServerProxy chunkServerProxy : chunkServers) {
             chunkServerProxy.writeToSocket(event);
         }
     }
 
+
+    /*
+    Formats the chunkServers into a table
+     */
     @Override
     public String toString() {
         String tableString = "";

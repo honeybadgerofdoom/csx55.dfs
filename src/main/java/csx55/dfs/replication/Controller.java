@@ -3,13 +3,17 @@ package csx55.dfs.replication;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import csx55.dfs.cli.ClientCLIManager;
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.ControllerCLIManager;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.util.ChunkServerManager;
 import csx55.dfs.wireformats.*;
 
+
+/*
+Controller class facilitates control-plan traffic
+Communicates with Clients and ChunkServers
+ */
 public class Controller implements Node {
 
     private final int portNumber;
@@ -21,12 +25,20 @@ public class Controller implements Node {
         this.chunkServerManager = new ChunkServerManager();
     }
 
+
+    /*
+    Setup necessary objects, threads, etc...
+     */
     public void doWork() {
         assignServerSocket();
         startTCPServerThread();
         manageCLI();
     }
 
+
+    /*
+    Setup this object's ServerSocket
+     */
     private void assignServerSocket() {
         try {
             this.serverSocket = new ServerSocket(this.portNumber);
@@ -35,10 +47,18 @@ public class Controller implements Node {
         }
     }
 
+
+    /*
+    Get a reference to this object's ServerSocket
+     */
     public ServerSocket getServerSocket() {
         return this.serverSocket;
     }
 
+
+    /*
+    Handle Events received by the TCPReceiverThread
+     */
     public void onEvent(Event event) {
         switch (event.getType()) {
             case Protocol.REGISTER_REQUEST:
@@ -49,25 +69,45 @@ public class Controller implements Node {
         }
     }
 
+
+    /*
+    Thread-safe method to allow registration of a new ChunkServer
+     */
     private synchronized void handleRegisterRequest(RegisterRequest registerRequest) {
         this.chunkServerManager.add(registerRequest);
     }
 
+
+    /*
+    Test network connectivity to each ChunkServer
+     */
     public void pokeChunkServers() {
         Poke poke = new Poke("Hello from Controller");
         chunkServerManager.sendToAllChunkServers(poke);
     }
 
+
+    /*
+    Print out all ChunkServers in a table
+     */
     public void printChunkServers() {
         System.out.println(chunkServerManager);
     }
 
+
+    /*
+    Manages CLI input for the Controller
+     */
     public void manageCLI() {
         ControllerCLIManager cliManager = new ControllerCLIManager(this);
         Thread thread = new Thread(cliManager);
         thread.start();
     }
 
+
+    /*
+    Entrypoint
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Invalid usage. Please provide a Port Number for the Registry.");

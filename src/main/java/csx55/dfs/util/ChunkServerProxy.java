@@ -6,22 +6,31 @@ import csx55.dfs.wireformats.Event;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
+
+/*
+Proxy for a ChunkServer to be used by the Controller
+ */
 public class ChunkServerProxy {
 
-    private final String id;
-    private final ChunkMetadata chunkMetadata;
-    private int spaceLeft;
-    private TCPSender tcpSender;
+    private final String id;  // This is ip:port
+    private final List<ChunkMetadata> chunkList;  // ChunkMetadata objects for each Chunk stored at the ChunkServer
+    private int spaceLeft;  // Room left for storage. Starts a 1GB
+    private TCPSender tcpSender;  // Reference for writing to this ChunkServer node
 
     public ChunkServerProxy(String ipAddress, int portNumber) {
         this.id = ipAddress + ":" + portNumber;
+        this.chunkList = new ArrayList<>();
         initializeTCPSender(ipAddress, portNumber);
-        this.chunkMetadata = new ChunkMetadata();
-//        this.spaceLeft = Configs.GB;
-        this.spaceLeft =  (60 * Configs.MB) + (17 * Configs.KB);
+        this.spaceLeft = Configs.GB;
     }
 
+
+    /*
+    Sets up the TCPSender used by writeToSocket()
+     */
     private void initializeTCPSender(String ipAddress, int portNumber) {
         try {
             Socket socket = new Socket(ipAddress, portNumber);
@@ -31,6 +40,10 @@ public class ChunkServerProxy {
         }
     }
 
+
+    /*
+    Thread-safe method that writes an Event to the socket associated with this ChunkServer
+     */
     public synchronized void writeToSocket(Event event) {
         if (this.tcpSender == null) {
             System.err.println("TCPSender has not been initialize yet.");
@@ -45,6 +58,10 @@ public class ChunkServerProxy {
         }
     }
 
+
+    /*
+    Formats the space left with GB/MB/KB/B
+     */
     private String formatSpaceLeft() {
         if (spaceLeft == Configs.GB) return "1 GB";
         if (spaceLeft > Configs.MB) {
@@ -60,6 +77,10 @@ public class ChunkServerProxy {
         return spaceLeft + " B";
     }
 
+
+    /*
+    Formats members into a table row
+     */
     @Override
     public String toString() {
         return String.format("| %-17s | %17s |", id, formatSpaceLeft());
