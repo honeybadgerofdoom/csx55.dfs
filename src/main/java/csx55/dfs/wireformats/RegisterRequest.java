@@ -17,6 +17,14 @@ public class RegisterRequest extends Event {
         super(bytes);
     }
 
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public int getPortNumber() {
+        return portNumber;
+    }
+
     @Override
     protected void marshall() throws IOException {
         marshallString(ipAddress);

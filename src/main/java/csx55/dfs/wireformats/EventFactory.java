@@ -1,5 +1,7 @@
 package csx55.dfs.wireformats;
 
+import csx55.dfs.testing.Poke;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.BufferedInputStream;
@@ -22,6 +24,8 @@ public class EventFactory {
         switch(messageType) {
             case Protocol.REGISTER_REQUEST:
                 return new RegisterRequest(bytes);
+            case Protocol.POKE:
+                return new Poke(bytes);
             default:
                 System.out.println("getEvent() found no matching route, messageType: " + messageType);
                 return null;

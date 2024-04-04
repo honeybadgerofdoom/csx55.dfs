@@ -4,15 +4,19 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import csx55.dfs.node.Node;
+import csx55.dfs.testing.Poke;
+import csx55.dfs.util.ChunkServerManager;
 import csx55.dfs.wireformats.*;
 
 public class Controller implements Node {
 
     private final int portNumber;
     private ServerSocket serverSocket;
+    private final ChunkServerManager chunkServerManager;
 
     public Controller(int portNumber) {
         this.portNumber = portNumber;
+        this.chunkServerManager = new ChunkServerManager();
     }
 
     public void doWork() {
@@ -43,7 +47,12 @@ public class Controller implements Node {
     }
 
     private synchronized void handleRegisterRequest(RegisterRequest registerRequest) {
-        System.out.println("Got register request from " + registerRequest);
+        this.chunkServerManager.add(registerRequest);
+    }
+
+    public void pokeChunkServers() {
+        Poke poke = new Poke("Hello from Controller");
+        chunkServerManager.sendToAllChunkServers(poke);
     }
 
     public static void main(String[] args) {
