@@ -58,8 +58,7 @@ public class Chunk {
         if (bytes.length % Configs.SLICE_SIZE != 0) {
             System.err.println(bytes.length % Configs.SLICE_SIZE + " leftover bytes that don't fit into " + numberOfSlices + " slices");
         }
-        System.out.println("Found " + numberOfSlices + " slices (should be 8)");
-        for (int i = 0; i < numberOfSlices - 1; i++) {  // Iterate number of slices times
+        for (int i = 0; i < numberOfSlices; i++) {  // Iterate number of slices times
             int startIndex = i * Configs.SLICE_SIZE;
             int endIndex = (i + 1) * Configs.SLICE_SIZE;
             byte[] slice = Arrays.copyOfRange(bytes, startIndex, endIndex);  // Build a slice
