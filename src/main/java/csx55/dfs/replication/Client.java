@@ -108,7 +108,7 @@ public class Client implements Node {
         if (file != null) {
             int numberOfChunks = file.length / Configs.CHUNK_SIZE;  // Find total number of chunks
             if (file.length % Configs.CHUNK_SIZE > 0) numberOfChunks++;  // Increment if we have a chunk w/ leftover
-            for (int i = 0; i < numberOfChunks - 1; i++) {  // Iterate number of chunks times
+            for (int i = 0; i < numberOfChunks; i++) {  // Iterate number of chunks times
                 int startIndex = i * Configs.CHUNK_SIZE;
                 int endIndex = (i + 1) * Configs.CHUNK_SIZE;
                 byte[] chunk = Arrays.copyOfRange(file, startIndex, endIndex);  // Build a chunk
