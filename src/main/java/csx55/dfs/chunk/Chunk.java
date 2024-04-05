@@ -6,6 +6,8 @@ import csx55.dfs.wireformats.ChunkDelivery;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /*
 Represents a chunk of a file
@@ -19,11 +21,27 @@ public class Chunk {
     private final ChunkMetadata chunkMetadata;
     private final Checksum[] checksums;
     private final String path;
+    private final String filename;
+    private final String root = "/tmp/chunk-server/";
 
     public Chunk(ChunkDelivery chunkDelivery) {
         this.chunkMetadata = new ChunkMetadata(chunkDelivery.getSequenceNumber());  // Metadata for this chunk
         this.checksums = new Checksum[8];  // Each slice is 8KB, each chunk is 64KB
-        this.path = chunkDelivery.getFilepath();
+        String filepath = chunkDelivery.getFilepath();
+        int index = filepath.lastIndexOf("/");
+        if (index >= 0) {
+            this.path = filepath.substring(0, index + 1);
+            this.filename = filepath.substring(index + 1);
+            try {
+                Files.createDirectories(Paths.get(root + path));
+            } catch (IOException e) {
+                System.out.println("Failed to create directory path '" + this.path + "'\n" + e);
+            }
+        }
+        else {
+            this.path = "";
+            this.filename = filepath;
+        }
         validateBytesOnStore(chunkDelivery.getChunkBytes());
         writeToDisk(chunkDelivery.getChunkBytes());
     }
@@ -62,8 +80,7 @@ public class Chunk {
         Write a byte[] to local storage
          */
     private void writeToDisk(byte[] bytes) {
-        String root = "/tmp/chunk-server/";
-        File outputFile = new File(root + path + "_" + chunkMetadata.getSequenceNumber());
+        File outputFile = new File(root + path + filename + "_" + chunkMetadata.getSequenceNumber());
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(bytes);
         } catch (IOException e) {

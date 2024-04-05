@@ -14,7 +14,6 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 
 
 /*
@@ -52,7 +51,6 @@ public class Client implements Node {
     Handle LocationsForChunkReply from Controller
      */
     private void handleLocationsForChunkReply(LocationsForChunkReply locationsForChunkReply) {
-        System.out.println("Received locations from Controller\n" + locationsForChunkReply);
         ChunkDelivery chunkDelivery = new ChunkDelivery(locationsForChunkReply);
         ChunkServerInfo firstChunkServer = locationsForChunkReply.getLocations().get(0);
         try {
