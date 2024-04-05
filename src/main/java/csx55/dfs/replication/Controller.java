@@ -3,6 +3,8 @@ package csx55.dfs.replication;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -91,10 +93,16 @@ public class Controller implements Node {
      */
     private void handleDownloadRequest(DownloadControlPlanRequest downloadControlPlanRequest, Socket socket) {
         System.out.println(downloadControlPlanRequest);
-        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(downloadControlPlanRequest.getFilename());
+
+        String filepath = downloadControlPlanRequest.getFilename();
+        int index = filepath.lastIndexOf("/");
+        if (index >= 0) {
+            filepath = filepath.substring(index + 1);
+        }
+
+        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(filepath);
         DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply(chunkLocationList);
-        System.out.println("Built reply: " + downloadControlPlanReply);
-        // FIXME If its empty, we don't have that file
+        // FIXME If its empty, we don't have that file. Print a message to the console!
         try {
             TCPSender sender = new TCPSender(socket);
             sender.sendData(downloadControlPlanReply.getBytes());

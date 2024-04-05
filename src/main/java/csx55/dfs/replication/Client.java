@@ -54,7 +54,7 @@ public class Client implements Node {
     Handle Download Control Plane reply
      */
     public void handleDownloadControlPlanReply(DownloadControlPlanReply downloadControlPlanReply) {
-        System.out.println("Received DownloadControlPlanReply");
+        System.out.println(downloadControlPlanReply);
     }
 
 
