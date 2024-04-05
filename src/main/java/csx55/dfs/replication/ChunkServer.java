@@ -165,7 +165,7 @@ public class ChunkServer implements Node {
     Get a Heartbeat message from the ChunkManager
      */
     public Heartbeat getHeartbeat() {
-        chunkManager.getHeartbeat();
+        return chunkManager.getHeartbeat(id);
     }
 
 

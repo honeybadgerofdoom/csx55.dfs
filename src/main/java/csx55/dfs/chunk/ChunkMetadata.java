@@ -10,9 +10,11 @@ public class ChunkMetadata {
 
     private int versionNumber, sequenceNumber;
     private LocalDateTime timestamp;
+    private String filename;
 
-    public ChunkMetadata(int sequenceNumber) {
+    public ChunkMetadata(int sequenceNumber, String filename) {
         this.sequenceNumber = sequenceNumber;
+        this.filename = filename;
         this.versionNumber = 1;
         this.timestamp = LocalDateTime.now();
     }

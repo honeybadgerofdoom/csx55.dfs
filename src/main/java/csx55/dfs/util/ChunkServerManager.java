@@ -1,6 +1,7 @@
 package csx55.dfs.util;
 
 import csx55.dfs.wireformats.Event;
+import csx55.dfs.wireformats.Heartbeat;
 import csx55.dfs.wireformats.RegisterRequest;
 
 import java.util.*;
@@ -26,6 +27,31 @@ public class ChunkServerManager {
     public void add(RegisterRequest registerRequest) {
         ChunkServerProxy chunkServerProxy = new ChunkServerProxy(registerRequest.getIpAddress(), registerRequest.getPortNumber());
         this.chunkServers.add(chunkServerProxy);
+    }
+
+
+    /*
+    Update with a heartbeat
+     */
+    public void handleHeartbeat(Heartbeat heartbeat) {
+        ChunkServerProxy chunkServerProxy = getChunkServerProxyById(heartbeat.getChunkServerID());  // Get the right reference
+        if (chunkServerProxy != null) {
+            chunkServerProxy.handleHeartbeat(heartbeat);  // Update it
+        }
+        else {
+            System.err.println("Failed to find ChunkServerProxy from heartbeat with ID " + heartbeat.getChunkServerID() + " ");
+        }
+    }
+
+
+    /*
+    Get the right ChunkServerProxy reference
+     */
+    private ChunkServerProxy getChunkServerProxyById(String id) {
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            if (chunkServerProxy.getId().equals(id)) return chunkServerProxy;
+        }
+        return null;
     }
 
 

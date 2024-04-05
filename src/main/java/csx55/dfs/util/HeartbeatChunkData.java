@@ -56,4 +56,9 @@ public class HeartbeatChunkData {
         return sequenceNumber;
     }
 
+    @Override
+    public String toString() {
+        return "Sequence Number: " + sequenceNumber;
+    }
+
 }

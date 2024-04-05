@@ -28,7 +28,6 @@ public class Chunk {
     private final String root = "/tmp/chunk-server/";
 
     public Chunk(ChunkDelivery chunkDelivery) {
-        this.chunkMetadata = new ChunkMetadata(chunkDelivery.getSequenceNumber());  // Metadata for this chunk
         this.checksums = new Checksum[8];  // Each slice is 8KB, each chunk is 64KB
         String filepath = chunkDelivery.getFilepath();
         int index = filepath.lastIndexOf("/");
@@ -45,6 +44,7 @@ public class Chunk {
             this.path = "";
             this.filename = filepath;
         }
+        this.chunkMetadata = new ChunkMetadata(chunkDelivery.getSequenceNumber(), filename);  // Metadata for this chunk
         validateBytesOnStore(chunkDelivery.getChunkBytes());
         writeToDisk(chunkDelivery.getChunkBytes());
     }

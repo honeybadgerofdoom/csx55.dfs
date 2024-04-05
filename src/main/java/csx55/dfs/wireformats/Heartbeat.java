@@ -12,12 +12,14 @@ public class Heartbeat extends Event {
     private int spaceLeft;
     private int numberOfChunks;
     private List<HeartbeatChunkData> heartbeatChunkDataList;
+    private String chunkServerID;
 
-    public Heartbeat(int spaceLeft, List<HeartbeatChunkData> heartbeatChunkDataList) {
+    public Heartbeat(int spaceLeft, List<HeartbeatChunkData> heartbeatChunkDataList, String chunkServerID) {
         super(Protocol.HEARTBEAT);
         this.spaceLeft = spaceLeft;
         this.numberOfChunks = heartbeatChunkDataList.size();
         this.heartbeatChunkDataList = heartbeatChunkDataList;
+        this.chunkServerID = chunkServerID;
     }
 
     public Heartbeat(byte[] bytes) throws IOException {
@@ -32,6 +34,10 @@ public class Heartbeat extends Event {
         return heartbeatChunkDataList;
     }
 
+    public String getChunkServerID() {
+        return chunkServerID;
+    }
+
     @Override
     protected void marshall() throws IOException {
         dataOutputStream.writeInt(spaceLeft);
@@ -40,6 +46,7 @@ public class Heartbeat extends Event {
             byte[] bytes = heartbeatChunkData.getBytes();
             marshallBytes(bytes);
         }
+        marshallString(chunkServerID);
     }
 
     @Override
@@ -51,6 +58,7 @@ public class Heartbeat extends Event {
             HeartbeatChunkData heartbeatChunkData = new HeartbeatChunkData(unmarshallBytes());
             heartbeatChunkDataList.add(heartbeatChunkData);
         }
+        this.chunkServerID = unmarshallString();
     }
 
 }

@@ -38,13 +38,13 @@ public class ChunkManager {
     Return a Heartbeat message representing the state of the ChunkManager
     ToDo ensure this only gets data since LAST heartbeat (for minor heartbeat)
      */
-    public Heartbeat getHeartbeat() {
+    public Heartbeat getHeartbeat(String id) {
         List<HeartbeatChunkData> heartbeatChunkDataList = new ArrayList<>();
         for (Chunk chunk : chunks) {
             HeartbeatChunkData heartbeatChunkData = new HeartbeatChunkData(chunk);
             heartbeatChunkDataList.add(heartbeatChunkData);
         }
-        return new Heartbeat(spaceLeft, heartbeatChunkDataList);
+        return new Heartbeat(spaceLeft, heartbeatChunkDataList, id);
     }
 
 
