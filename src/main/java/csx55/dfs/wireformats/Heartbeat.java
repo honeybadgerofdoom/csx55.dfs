@@ -1,7 +1,6 @@
 package csx55.dfs.wireformats;
 
 import csx55.dfs.chunk.ChunkMetadata;
-import csx55.dfs.util.HeartbeatChunkData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,14 +10,14 @@ public class Heartbeat extends Event {
 
     private int spaceLeft;
     private int numberOfChunks;
-    private List<HeartbeatChunkData> heartbeatChunkDataList;
+    private List<ChunkMetadata> chunkMetadataList;
     private String chunkServerID;
 
-    public Heartbeat(int spaceLeft, List<HeartbeatChunkData> heartbeatChunkDataList, String chunkServerID) {
+    public Heartbeat(int spaceLeft, List<ChunkMetadata> chunkMetadataList, String chunkServerID) {
         super(Protocol.HEARTBEAT);
         this.spaceLeft = spaceLeft;
-        this.numberOfChunks = heartbeatChunkDataList.size();
-        this.heartbeatChunkDataList = heartbeatChunkDataList;
+        this.numberOfChunks = chunkMetadataList.size();
+        this.chunkMetadataList = chunkMetadataList;
         this.chunkServerID = chunkServerID;
     }
 
@@ -30,8 +29,8 @@ public class Heartbeat extends Event {
         return spaceLeft;
     }
 
-    public List<HeartbeatChunkData> getHeartbeatChunkDataList() {
-        return heartbeatChunkDataList;
+    public List<ChunkMetadata> getChunkMetadataList() {
+        return chunkMetadataList;
     }
 
     public String getChunkServerID() {
@@ -42,8 +41,8 @@ public class Heartbeat extends Event {
     protected void marshall() throws IOException {
         dataOutputStream.writeInt(spaceLeft);
         dataOutputStream.writeInt(numberOfChunks);
-        for (HeartbeatChunkData heartbeatChunkData : heartbeatChunkDataList) {
-            byte[] bytes = heartbeatChunkData.getBytes();
+        for (ChunkMetadata chunkMetadata : chunkMetadataList) {
+            byte[] bytes = chunkMetadata.getBytes();
             marshallBytes(bytes);
         }
         marshallString(chunkServerID);
@@ -53,10 +52,10 @@ public class Heartbeat extends Event {
     protected void unmarshall() throws IOException {
         this.spaceLeft = dataInputStream.readInt();
         this.numberOfChunks = dataInputStream.readInt();
-        this.heartbeatChunkDataList = new ArrayList<>();
+        this.chunkMetadataList = new ArrayList<>();
         for (int i = 0; i < numberOfChunks; i++) {
-            HeartbeatChunkData heartbeatChunkData = new HeartbeatChunkData(unmarshallBytes());
-            heartbeatChunkDataList.add(heartbeatChunkData);
+            ChunkMetadata chunkMetadata = new ChunkMetadata(unmarshallBytes());
+            chunkMetadataList.add(chunkMetadata);
         }
         this.chunkServerID = unmarshallString();
     }

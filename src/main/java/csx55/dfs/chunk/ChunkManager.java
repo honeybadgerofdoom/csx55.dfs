@@ -2,7 +2,6 @@ package csx55.dfs.chunk;
 
 
 import csx55.dfs.util.Configs;
-import csx55.dfs.util.HeartbeatChunkData;
 import csx55.dfs.wireformats.ChunkDelivery;
 import csx55.dfs.wireformats.Heartbeat;
 
@@ -39,10 +38,9 @@ public class ChunkManager {
     ToDo ensure this only gets data since LAST heartbeat (for minor heartbeat)
      */
     public Heartbeat getHeartbeat(String id) {
-        List<HeartbeatChunkData> heartbeatChunkDataList = new ArrayList<>();
+        List<ChunkMetadata> heartbeatChunkDataList = new ArrayList<>();
         for (Chunk chunk : chunks) {
-            HeartbeatChunkData heartbeatChunkData = new HeartbeatChunkData(chunk);
-            heartbeatChunkDataList.add(heartbeatChunkData);
+            heartbeatChunkDataList.add(chunk.getChunkMetadata());
         }
         return new Heartbeat(spaceLeft, heartbeatChunkDataList, id);
     }

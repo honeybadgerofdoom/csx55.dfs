@@ -17,7 +17,7 @@ Proxy for a ChunkServer to be used by the Controller
 public class ChunkServerProxy {
 
     private final String id;  // This is ip:port
-    private List<HeartbeatChunkData> chunkList;  // ChunkMetadata objects for each Chunk stored at the ChunkServer
+    private final List<ChunkMetadata> chunkList;  // ChunkMetadata objects for each Chunk stored at the ChunkServer
     private int spaceLeft;  // Room left for storage. Starts a 1GB
     private TCPSender tcpSender;  // Reference for writing to this ChunkServer node
 
@@ -35,8 +35,9 @@ public class ChunkServerProxy {
     public void handleHeartbeat(Heartbeat heartbeat) {
         this.spaceLeft = heartbeat.getSpaceLeft();
 
-        // FIXME This needs to add, not change the ref (ref should be final)
-        this.chunkList = heartbeat.getHeartbeatChunkDataList();
+        // FIXME This needs to surgically update/add individual elements
+        this.chunkList.clear();
+        this.chunkList.addAll(heartbeat.getChunkMetadataList());
     }
 
 
@@ -95,7 +96,7 @@ public class ChunkServerProxy {
      */
     public String printChunkMetadata() {
         String rtn = "Chunk Metadata: {\n";
-        for (HeartbeatChunkData chunkData : chunkList) {
+        for (ChunkMetadata chunkData : chunkList) {
             rtn +=  "\t" + chunkData + "\n";
         }
         rtn += "}";
