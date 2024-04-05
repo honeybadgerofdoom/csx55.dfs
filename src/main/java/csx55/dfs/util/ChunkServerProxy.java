@@ -92,11 +92,19 @@ public class ChunkServerProxy {
 
 
     /*
-    Formats members into a table row
-     */
+        Formats members into a table row
+         */
     @Override
     public String toString() {
         return String.format("| %-17s | %17s |", id, formatSpaceLeft());
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public boolean hasSpaceLeft() {
+        return spaceLeft > Configs.CHUNK_SIZE;
     }
 
 }

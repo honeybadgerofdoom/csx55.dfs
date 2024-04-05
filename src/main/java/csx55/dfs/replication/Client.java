@@ -1,6 +1,12 @@
 package csx55.dfs.replication;
 
 import csx55.dfs.cli.ClientCLIManager;
+import csx55.dfs.wireformats.Event;
+import csx55.dfs.wireformats.LocationsForChunkReply;
+import csx55.dfs.wireformats.Protocol;
+import csx55.dfs.wireformats.RegisterRequest;
+
+import java.net.Socket;
 
 
 /*
@@ -16,6 +22,25 @@ public class Client {
     public Client(String controllerIpAddress, int controllerPortNumber) {
         this.controllerIpAddress = controllerIpAddress;
         this.controllerPortNumber = controllerPortNumber;
+    }
+
+
+    /*
+    Handle incoming network events
+     */
+    public void onEvent(Event event) {
+        switch (event.getType()) {
+            case Protocol.LOCATIONS_FOR_CHUNK_REPLY:
+                handleLocationsForChunkReply((LocationsForChunkReply) event);
+                break;
+            default:
+                System.out.println("onEvent trying to process invalid event type: " + event.getType());
+        }
+    }
+
+
+    private void handleLocationsForChunkReply(LocationsForChunkReply locationsForChunkReply) {
+        System.out.println(locationsForChunkReply);
     }
 
 

@@ -16,6 +16,12 @@ public class ChunkServerInfo {
         this.portNumber = portNumber;
     }
 
+    public ChunkServerInfo(ChunkServerProxy chunkServerProxy) {
+        String[] parts = chunkServerProxy.getId().split(":");
+        this.ipAddress = parts[0];
+        this.portNumber = Integer.parseInt(parts[1]);
+    }
+
     public ChunkServerInfo(byte[] bytes) throws IOException {
         ByteArrayInputStream bArrayInputStream = new ByteArrayInputStream(bytes);
         DataInputStream din = new DataInputStream(new BufferedInputStream(bArrayInputStream));
@@ -67,6 +73,11 @@ public class ChunkServerInfo {
         boolean matchesIp = ipAddress.equals(parts[0]);
         boolean matchesPort = portNumber == Integer.parseInt(parts[1]);
         return matchesIp && matchesPort;
+    }
+
+    @Override
+    public String toString() {
+        return "ChunkServerInfo [" + ipAddress + ":" + portNumber + "]";
     }
 
 }

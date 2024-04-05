@@ -31,6 +31,10 @@ public class EventFactory {
                 return new RegisterRequest(bytes);
             case Protocol.CHUNK_DELIVERY:
                 return new ChunkDelivery(bytes);
+            case Protocol.LOCATIONS_FOR_CHUNK_REQUEST:
+                return  new LocationsForChunkRequest(bytes);
+            case Protocol.LOCATIONS_FOR_CHUNK_REPLY:
+                return  new LocationsForChunkReply(bytes);
             case Protocol.POKE:
                 return new Poke(bytes);
             default:

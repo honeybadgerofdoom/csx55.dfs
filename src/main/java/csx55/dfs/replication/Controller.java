@@ -2,10 +2,14 @@ package csx55.dfs.replication;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.List;
 
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.ControllerCLIManager;
 import csx55.dfs.testing.Poke;
+import csx55.dfs.transport.TCPSender;
+import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.ChunkServerManager;
 import csx55.dfs.wireformats.*;
 
@@ -59,13 +63,31 @@ public class Controller implements Node {
     /*
     Handle Events received by the TCPReceiverThread
      */
-    public void onEvent(Event event) {
+    public void onEvent(Event event, Socket socket) {
         switch (event.getType()) {
             case Protocol.REGISTER_REQUEST:
                 handleRegisterRequest((RegisterRequest) event);
                 break;
+            case Protocol.LOCATIONS_FOR_CHUNK_REQUEST:
+                handleLocationsForChunkRequest(socket);
+                break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
+        }
+    }
+
+
+    /*
+    Handle request for chunk locations
+     */
+    private void handleLocationsForChunkRequest(Socket socket) {
+        List<ChunkServerInfo> locations = chunkServerManager.findLocationsForChunks();
+        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(locations);
+        try {
+            TCPSender sender = new TCPSender(socket);
+            sender.sendData(locationsForChunkReply.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send LocationsForChunkReply " + e);
         }
     }
 
