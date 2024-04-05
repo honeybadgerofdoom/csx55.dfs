@@ -1,5 +1,7 @@
 package csx55.dfs.replication;
 
+import csx55.dfs.chunk.Chunk;
+import csx55.dfs.chunk.ChunkManager;
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.wireformats.*;
@@ -8,6 +10,9 @@ import csx55.dfs.transport.TCPSender;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /*
@@ -21,10 +26,12 @@ public class ChunkServer implements Node {
     private final int controllerPortNumber;
     private String ipAddress;
     private int portNumber;
+    private final ChunkManager chunkManager;
 
     public ChunkServer(String controllerIpAddress, int controllerPortNumber) {
         this.controllerIpAddress = controllerIpAddress;
         this.controllerPortNumber = controllerPortNumber;
+        this.chunkManager = new ChunkManager();
     }
 
 
@@ -102,6 +109,9 @@ public class ChunkServer implements Node {
         if (event != null) {
             int type = event.getType();
             switch (type) {
+                case Protocol.CHUNK_DELIVERY:
+                    handleChunkDelivery((ChunkDelivery) event);
+                    break;
                 case Protocol.POKE:
                     handlePoke((Poke) event);
                     break;
@@ -113,23 +123,22 @@ public class ChunkServer implements Node {
 
 
     /*
-    Handle Poke Event
+    Handle a chunk delivery
+    Pass the chunk to my chunkManager, forward message if need be
      */
-    private void handlePoke(Poke poke) {
-        System.out.println("Received poke: '" + poke.getMessage() + "'");
+    private void handleChunkDelivery(ChunkDelivery chunkDelivery) {
+        chunkManager.addChunk(chunkDelivery);
+        // ToDo Check if we need to forward this ChunkDelivery to another ChunkServer for replication
+        List<String> chunkServers = new ArrayList<>(Arrays.asList(chunkDelivery.getListOfChunkServers().split("\n")));
+
     }
 
 
     /*
-    Write a byte[] to local storage
+    Handle Poke Event
      */
-    private void write(byte[] file, String writePath) {
-        File outputFile = new File(writePath);
-        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-            outputStream.write(file);
-        } catch (IOException e) {
-            System.err.println("Failed to write file to disc " + e);
-        }
+    private void handlePoke(Poke poke) {
+        System.out.println("Received poke: '" + poke.getMessage() + "'");
     }
 
     @Override
