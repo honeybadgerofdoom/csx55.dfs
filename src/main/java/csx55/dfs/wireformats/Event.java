@@ -72,12 +72,17 @@ public abstract class Event {
     }
 
     protected void marshallChunkServerInfo(ChunkServerInfo chunkServerInfo) throws IOException {
-        // ToDo call getBytes on the chunkServerInfo
+        byte[] bytes = chunkServerInfo.getBytes();
+        int elementLength = bytes.length;
+        dataOutputStream.writeInt(elementLength);
+        dataOutputStream.write(bytes);
     }
 
     protected ChunkServerInfo unmarshallChunkServerInfo() throws IOException {
-        // ToDo call new ChunkServerInfo(bytes)
-        return null;
+        int chunkServerInfoLength = dataInputStream.readInt();
+        byte[] bytes = new byte[chunkServerInfoLength];
+        dataInputStream.readFully(bytes);
+        return new ChunkServerInfo(bytes);
     }
 
     public int getType() {

@@ -1,20 +1,26 @@
 package csx55.dfs.wireformats;
 
+import csx55.dfs.util.ChunkServerInfo;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChunkDelivery extends Event {
 
     private byte[] chunkBytes;
     private String filepath;
     private int sequenceNumber;
-    private String listOfChunkServers;  // Each ChunkServer should be separated by "\n"
+    private List<ChunkServerInfo> chunkServerInfoList;
+    private int numberOfChunkServers;
 
-    public ChunkDelivery(byte[] chunkBytes, String filepath, int sequenceNumber, String listOfChunkServers) {
+    public ChunkDelivery(byte[] chunkBytes, String filepath, int sequenceNumber, List<ChunkServerInfo> chunkServerInfoList) {
         super(Protocol.CHUNK_DELIVERY);
         this.chunkBytes = chunkBytes;
         this.filepath = filepath;
         this.sequenceNumber = sequenceNumber;
-        this.listOfChunkServers = listOfChunkServers;
+        this.chunkServerInfoList = chunkServerInfoList;
+        this.numberOfChunkServers = chunkServerInfoList.size();
     }
 
     public ChunkDelivery(byte[] bytes) throws IOException {
@@ -33,8 +39,12 @@ public class ChunkDelivery extends Event {
         return sequenceNumber;
     }
 
-    public String getListOfChunkServers() {
-        return listOfChunkServers;
+    public List<ChunkServerInfo> getChunkServerInfoList() {
+        return chunkServerInfoList;
+    }
+
+    public boolean isLastChunkServer(String id) {
+        return chunkServerInfoList.get(numberOfChunkServers - 1).matchesId(id);
     }
 
     @Override
@@ -42,7 +52,10 @@ public class ChunkDelivery extends Event {
         marshallBytes(chunkBytes);
         marshallString(filepath);
         dataOutputStream.writeInt(sequenceNumber);
-        marshallString(listOfChunkServers);
+        dataOutputStream.writeInt(numberOfChunkServers);
+        for (ChunkServerInfo chunkServerInfo : chunkServerInfoList) {
+            marshallChunkServerInfo(chunkServerInfo);
+        }
     }
 
     @Override
@@ -50,7 +63,12 @@ public class ChunkDelivery extends Event {
         this.chunkBytes = unmarshallBytes();
         this.filepath = unmarshallString();
         this.sequenceNumber = dataInputStream.readInt();
-        this.listOfChunkServers = unmarshallString();
+        this.numberOfChunkServers = dataInputStream.readInt();
+        this.chunkServerInfoList = new ArrayList<>();
+        for (int i = 0; i < numberOfChunkServers; i++) {
+            ChunkServerInfo chunkServerInfo = unmarshallChunkServerInfo();
+            chunkServerInfoList.add(chunkServerInfo);
+        }
     }
 
 }

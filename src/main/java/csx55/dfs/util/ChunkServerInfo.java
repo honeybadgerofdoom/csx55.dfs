@@ -1,5 +1,7 @@
 package csx55.dfs.util;
 
+import java.io.*;
+
 
 /*
 Data container for chunk server ip/port
@@ -14,6 +16,40 @@ public class ChunkServerInfo {
         this.portNumber = portNumber;
     }
 
+    public ChunkServerInfo(byte[] bytes) throws IOException {
+        ByteArrayInputStream bArrayInputStream = new ByteArrayInputStream(bytes);
+        DataInputStream din = new DataInputStream(new BufferedInputStream(bArrayInputStream));
+
+        int elementLength = din.readInt();
+        byte[] ipBytes = new byte[elementLength];
+        din.readFully(ipBytes);
+        this.ipAddress = new String(ipBytes);
+
+        this.portNumber = din.readInt();
+
+        bArrayInputStream.close();
+        din.close();
+    }
+
+    public byte[] getBytes() throws IOException {
+        byte[] marshalledBytes = null;
+        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
+
+        byte[] bytes = ipAddress.getBytes();
+        int elementLength = bytes.length;
+        dout.writeInt(elementLength);
+        dout.write(bytes);
+
+        dout.writeInt(portNumber);
+
+        dout.flush();
+        marshalledBytes = baOutputStream.toByteArray();
+        baOutputStream.close();
+        dout.close();
+        return marshalledBytes;
+    }
+
     public String getIpAddress() {
         return ipAddress;
     }
@@ -22,7 +58,6 @@ public class ChunkServerInfo {
         return portNumber;
     }
 
-    // ToDo ctor that takes bytes, write toBytes()
 
     /*
     Check if a given ID matches this ChunkServerInfo

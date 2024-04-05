@@ -26,6 +26,7 @@ public class ChunkServer implements Node {
     private final int controllerPortNumber;
     private String ipAddress;
     private int portNumber;
+    private String id;
     private final ChunkManager chunkManager;
 
     public ChunkServer(String controllerIpAddress, int controllerPortNumber) {
@@ -67,6 +68,7 @@ public class ChunkServer implements Node {
         try {
             this.serverSocket = new ServerSocket(0);
             this.portNumber = this.serverSocket.getLocalPort();
+            this.id = ipAddress + ":" + portNumber;
         } catch (IOException e) {
             System.err.println("ERROR Failed to create ServerSocket...\n" + e);
         }
@@ -128,9 +130,9 @@ public class ChunkServer implements Node {
      */
     private void handleChunkDelivery(ChunkDelivery chunkDelivery) {
         chunkManager.addChunk(chunkDelivery);
-        // ToDo Check if we need to forward this ChunkDelivery to another ChunkServer for replication
-        List<String> chunkServers = new ArrayList<>(Arrays.asList(chunkDelivery.getListOfChunkServers().split("\n")));
-
+        if (!chunkDelivery.isLastChunkServer(id)) {
+            // ToDo Get the next ChunkServerInfo, forward the message to it
+        }
     }
 
 
