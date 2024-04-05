@@ -1,5 +1,7 @@
 package csx55.dfs.wireformats;
 
+import csx55.dfs.util.ChunkServerInfo;
+
 import java.io.*;
 
 
@@ -67,6 +69,15 @@ public abstract class Event {
         byte[] bytes = new byte[elementLength];
         dataInputStream.readFully(bytes);
         return bytes;
+    }
+
+    protected void marshallChunkServerInfo(ChunkServerInfo chunkServerInfo) throws IOException {
+        // ToDo call getBytes on the chunkServerInfo
+    }
+
+    protected ChunkServerInfo unmarshallChunkServerInfo() throws IOException {
+        // ToDo call new ChunkServerInfo(bytes)
+        return null;
     }
 
     public int getType() {
