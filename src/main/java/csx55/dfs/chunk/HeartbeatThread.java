@@ -15,14 +15,12 @@ public class HeartbeatThread implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Running the HeartbeatThread...");
         while (true) {
             try {
                 TimeUnit.SECONDS.sleep(15);
             } catch (InterruptedException e) {
                 System.err.println("Error while trying to sleep HeartbeatThread " + e);
             }
-            System.out.println("Sending Heartbeat");
             Heartbeat heartbeat = chunkServer.getHeartbeat();
             chunkServer.writeToController(heartbeat);
         }
