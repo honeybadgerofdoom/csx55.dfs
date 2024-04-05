@@ -3,6 +3,7 @@ package csx55.dfs.chunk;
 
 import csx55.dfs.util.Configs;
 import csx55.dfs.wireformats.ChunkDelivery;
+import csx55.dfs.wireformats.Heartbeat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,20 @@ public class ChunkManager {
         this.chunks.add(chunk);
         this.spaceLeft -= Configs.CHUNK_SIZE;
     }
+
+
+    /*
+    Return a Heartbeat message representing the state of the ChunkManager
+    ToDo ensure this only gets data since LAST heartbeat (for minor heartbeat)
+     */
+    public Heartbeat getHeartbeat(String id) {
+        List<ChunkMetadata> heartbeatChunkDataList = new ArrayList<>();
+        for (Chunk chunk : chunks) {
+            heartbeatChunkDataList.add(chunk.getChunkMetadata());
+        }
+        return new Heartbeat(spaceLeft, heartbeatChunkDataList, id);
+    }
+
 
     public void printChunks() {
         for (Chunk chunk : chunks) {

@@ -1,6 +1,7 @@
 package csx55.dfs.util;
 
 import csx55.dfs.wireformats.Event;
+import csx55.dfs.wireformats.Heartbeat;
 import csx55.dfs.wireformats.RegisterRequest;
 
 import java.util.*;
@@ -26,6 +27,31 @@ public class ChunkServerManager {
     public void add(RegisterRequest registerRequest) {
         ChunkServerProxy chunkServerProxy = new ChunkServerProxy(registerRequest.getIpAddress(), registerRequest.getPortNumber());
         this.chunkServers.add(chunkServerProxy);
+    }
+
+
+    /*
+    Update with a heartbeat
+     */
+    public void handleHeartbeat(Heartbeat heartbeat) {
+        ChunkServerProxy chunkServerProxy = getChunkServerProxyById(heartbeat.getChunkServerID());  // Get the right reference
+        if (chunkServerProxy != null) {
+            chunkServerProxy.handleHeartbeat(heartbeat);  // Update it
+        }
+        else {
+            System.err.println("Failed to find ChunkServerProxy from heartbeat with ID " + heartbeat.getChunkServerID() + " ");
+        }
+    }
+
+
+    /*
+    Get the right ChunkServerProxy reference
+     */
+    private ChunkServerProxy getChunkServerProxyById(String id) {
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            if (chunkServerProxy.getId().equals(id)) return chunkServerProxy;
+            }
+        return null;
     }
 
 
@@ -59,6 +85,16 @@ public class ChunkServerManager {
 
 
     /*
+    Print all chunk metadata held by ChunkServerManager
+     */
+    public void printChunkMetadata() {
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            System.out.println(chunkServerProxy.getChunkMetadataString());
+        }
+    }
+
+
+    /*
     Formats the chunkServers into a table
      */
     @Override
@@ -79,8 +115,10 @@ public class ChunkServerManager {
         tableString += String.format("| %-17s | %17s |", "ID", "Space Left") + "\n";
         tableString += tableLine + "\n";
 
-        for (ChunkServerProxy chunkServerProxy : chunkServers) {
-            tableString += chunkServerProxy + "\n";
+        synchronized (chunkServers) {
+            for (ChunkServerProxy chunkServerProxy : chunkServers) {
+                tableString += chunkServerProxy + "\n";
+            }
         }
 
         tableString += tableLine;

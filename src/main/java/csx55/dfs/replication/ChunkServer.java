@@ -1,6 +1,7 @@
 package csx55.dfs.replication;
 
 import csx55.dfs.chunk.ChunkManager;
+import csx55.dfs.chunk.HeartbeatThread;
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.util.ChunkServerInfo;
@@ -45,6 +46,17 @@ public class ChunkServer implements Node {
         createDirectory();
         connectToController();
         registerSelf();
+        startHeartbeat();
+    }
+
+
+    /*
+    Start the HeartbeatThread
+     */
+    private void startHeartbeat() {
+        HeartbeatThread heartbeatThread = new HeartbeatThread(this);
+        Thread thread = new Thread(heartbeatThread);
+        thread.start();
     }
 
 
@@ -87,6 +99,21 @@ public class ChunkServer implements Node {
         }
     }
 
+
+    /*
+    Thread-safe writing to Controller socket
+     */
+    public synchronized void writeToController(Event event) {
+        try {
+            TCPSender tcpSender = new TCPSender(this.socketToController);
+            byte[] bytes = event.getBytes();
+            tcpSender.sendData(bytes);
+        } catch (IOException e) {
+            System.err.println("ERROR Trying to register self " + e);
+        }
+    }
+
+
     /*
     Connect to the Controller node, spin up TCPReceiverThread
      */
@@ -106,14 +133,8 @@ public class ChunkServer implements Node {
     Send a RegisterRequest to the Controller
      */
     private void registerSelf() {
-        try {
-            TCPSender tcpSender = new TCPSender(this.socketToController);
-            RegisterRequest registerRequest = new RegisterRequest(ipAddress, portNumber);
-            byte[] bytes = registerRequest.getBytes();
-            tcpSender.sendData(bytes);
-        } catch (IOException e) {
-            System.err.println("ERROR Trying to register self " + e);
-        }
+        RegisterRequest registerRequest = new RegisterRequest(ipAddress, portNumber);
+        writeToController(registerRequest);
     }
 
 
@@ -137,6 +158,14 @@ public class ChunkServer implements Node {
                     System.out.println("onEvent couldn't handle event type " + type);
             }
         }
+    }
+
+
+    /*
+    Get a Heartbeat message from the ChunkManager
+     */
+    public Heartbeat getHeartbeat() {
+        return chunkManager.getHeartbeat(id);
     }
 
 

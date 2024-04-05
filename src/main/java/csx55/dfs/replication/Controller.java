@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import csx55.dfs.node.Node;
@@ -13,7 +12,6 @@ import csx55.dfs.testing.Poke;
 import csx55.dfs.transport.TCPSender;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.ChunkServerManager;
-import csx55.dfs.util.ChunkServerProxy;
 import csx55.dfs.wireformats.*;
 
 
@@ -74,9 +72,22 @@ public class Controller implements Node {
             case Protocol.LOCATIONS_FOR_CHUNK_REQUEST:
                 handleLocationsForChunkRequest((LocationsForChunkRequest) event, socket);
                 break;
+            case Protocol.HEARTBEAT:
+                handleHeartbeat((Heartbeat) event);
+                break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
         }
+    }
+
+
+    /*
+    Handle a Heartbeat
+    We probably don't need to synchronize this because each heartbeat comes from a different ChunkServer, and
+        ChunkServers have unique ID's. We can just update the correct reference w/o thread safety
+     */
+    private void handleHeartbeat(Heartbeat heartbeat) {
+        chunkServerManager.handleHeartbeat(heartbeat);
     }
 
 
@@ -125,6 +136,14 @@ public class Controller implements Node {
      */
     public void printChunkServerChunks() {
         chunkServerManager.sendToAllChunkServers(new PrintChunks());
+    }
+
+
+    /*
+    Print all chunk metadata in controller
+     */
+    public void printChunkMetadata() {
+        chunkServerManager.printChunkMetadata();
     }
 
 

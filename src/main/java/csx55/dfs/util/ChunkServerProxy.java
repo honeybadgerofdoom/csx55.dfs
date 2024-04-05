@@ -3,6 +3,7 @@ package csx55.dfs.util;
 import csx55.dfs.chunk.ChunkMetadata;
 import csx55.dfs.transport.TCPSender;
 import csx55.dfs.wireformats.Event;
+import csx55.dfs.wireformats.Heartbeat;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,6 +26,18 @@ public class ChunkServerProxy {
         this.chunkList = new ArrayList<>();
         initializeTCPSender(ipAddress, portNumber);
         this.spaceLeft = Configs.GB;
+    }
+
+
+    /*
+    Update with a heartbeat
+     */
+    public void handleHeartbeat(Heartbeat heartbeat) {
+        this.spaceLeft = heartbeat.getSpaceLeft();
+
+        // FIXME This needs to surgically update/add individual elements
+        this.chunkList.clear();
+        this.chunkList.addAll(heartbeat.getChunkMetadataList());
     }
 
 
@@ -66,7 +79,7 @@ public class ChunkServerProxy {
         if (spaceLeft == Configs.GB) return "1 GB";
         if (spaceLeft > Configs.MB) {
             int mb = Math.floorDiv(spaceLeft, Configs.MB);
-            int kb = spaceLeft % Configs.MB;
+            int kb = (spaceLeft % Configs.MB) / Configs.KB;
             return mb + " MB " + kb + " KB";
         }
         if (spaceLeft > Configs.KB) {
@@ -81,10 +94,10 @@ public class ChunkServerProxy {
     /*
     Print out ChunkMetadata associated with this ChunkServerProxy
      */
-    public String printChunkMetadata() {
-        String rtn = "Chunk Metadata: {\n";
-        for (ChunkMetadata chunkMetadata : chunkList) {
-            rtn +=  "\t" + chunkMetadata + "\n";
+    public String getChunkMetadataString() {
+        String rtn = id + ": {\n";
+        for (ChunkMetadata chunkData : chunkList) {
+            rtn +=  "\t" + chunkData + "\n";
         }
         rtn += "}";
         return rtn;
