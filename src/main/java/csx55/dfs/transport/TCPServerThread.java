@@ -27,13 +27,13 @@ public class TCPServerThread implements Runnable {
                     Thread thread = new Thread(receiver);
                     thread.start();
                 } catch (IOException e) {
-                    System.out.println("ERROR Adding the following Socket " + receiverSocket.toString());
+                    System.out.println("ERROR Adding the following Socket " + receiverSocket);
                 }
             }
         } catch (SocketException e) {
-            System.out.println("ERROR SocketException in the run() method of TCPServerThread...\n" + e.toString());
+            System.out.println("ERROR SocketException in the run() method of TCPServerThread...\n" + e);
         } catch (IOException e) {
-            System.out.println("ERROR IOException in the run() method of TCPServerThread...\n" + e.toString());
+            System.out.println("ERROR IOException in the run() method of TCPServerThread...\n" + e);
         }
         System.out.println("TCPServerThread ending.");
     }

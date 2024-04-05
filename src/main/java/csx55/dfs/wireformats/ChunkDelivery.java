@@ -47,6 +47,16 @@ public class ChunkDelivery extends Event {
         return chunkServerInfoList.get(numberOfChunkServers - 1).matchesId(id);
     }
 
+    public ChunkServerInfo getNext(String id) {
+        for (int i = 0; i < numberOfChunkServers - 1; i++) {
+            ChunkServerInfo current = chunkServerInfoList.get(i);
+            if (current.matchesId(id) ) {
+                return chunkServerInfoList.get(i + 1);
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void marshall() throws IOException {
         marshallBytes(chunkBytes);

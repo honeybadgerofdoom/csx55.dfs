@@ -4,6 +4,7 @@ import csx55.dfs.chunk.Chunk;
 import csx55.dfs.chunk.ChunkManager;
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.Poke;
+import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.wireformats.*;
 import csx55.dfs.transport.TCPReceiverThread;
 import csx55.dfs.transport.TCPSender;
@@ -131,7 +132,19 @@ public class ChunkServer implements Node {
     private void handleChunkDelivery(ChunkDelivery chunkDelivery) {
         chunkManager.addChunk(chunkDelivery);
         if (!chunkDelivery.isLastChunkServer(id)) {
-            // ToDo Get the next ChunkServerInfo, forward the message to it
+            ChunkServerInfo next = chunkDelivery.getNext(id);
+            if (next == null) {
+                System.err.println("Failed to find ChunkServer to forward ChunkDelivery to");
+            }
+            else {
+                try {
+                    Socket socket = new Socket(next.getIpAddress(), next.getPortNumber());
+                    TCPSender sender = new TCPSender(socket);
+                    sender.sendData(chunkDelivery.getBytes());
+                } catch (IOException e) {
+                    System.err.println("Failed to forward ChunkDelivery " + e);
+                }
+            }
         }
     }
 
