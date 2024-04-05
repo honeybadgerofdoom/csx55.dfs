@@ -1,5 +1,7 @@
 package csx55.dfs.chunk;
 
+import csx55.dfs.util.ChunkServerInfo;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.io.*;
@@ -95,4 +97,22 @@ public class ChunkMetadata implements Comparable<ChunkMetadata> {
     public int compareTo(ChunkMetadata chunkMetadata) {
         return Integer.compare(chunkMetadata.getSequenceNumber(), this.sequenceNumber);
     }
+
+    @Override
+    public int hashCode() {
+        return (filename + sequenceNumber).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ChunkMetadata other = (ChunkMetadata) obj;
+        return this.filename.equals(other.getFilename()) && this.sequenceNumber == other.getSequenceNumber();
+    }
+
 }

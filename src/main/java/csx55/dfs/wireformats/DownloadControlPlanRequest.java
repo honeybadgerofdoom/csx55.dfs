@@ -15,6 +15,10 @@ public class DownloadControlPlanRequest extends Event {
         super(bytes);
     }
 
+    public String getFilename() {
+        return filename;
+    }
+
     @Override
     protected void marshall() throws IOException {
         marshallString(filename);

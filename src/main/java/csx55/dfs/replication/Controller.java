@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.ControllerCLIManager;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.transport.TCPSender;
+import csx55.dfs.util.ChunkLocation;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.ChunkServerManager;
 import csx55.dfs.wireformats.*;
@@ -89,14 +91,16 @@ public class Controller implements Node {
      */
     private void handleDownloadRequest(DownloadControlPlanRequest downloadControlPlanRequest, Socket socket) {
         System.out.println(downloadControlPlanRequest);
-        // ToDo build DownloadControlPlanReply
-//        DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply();
-//        try {
-//            TCPSender sender = new TCPSender(socket);
-//            sender.sendData(downloadControlPlanReply.getBytes());
-//        } catch (IOException e) {
-//            System.err.println("Failed to send DownloadControlReply back to client " + e);
-//        }
+        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(downloadControlPlanRequest.getFilename());
+        DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply(chunkLocationList);
+        System.out.println("Built reply: " + downloadControlPlanReply);
+        // FIXME If its empty, we don't have that file
+        try {
+            TCPSender sender = new TCPSender(socket);
+            sender.sendData(downloadControlPlanReply.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send DownloadControlReply back to client " + e);
+        }
     }
 
 

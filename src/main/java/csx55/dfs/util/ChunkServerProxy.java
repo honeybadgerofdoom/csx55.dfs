@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 /*
@@ -38,6 +39,19 @@ public class ChunkServerProxy {
         // FIXME This needs to surgically update/add individual elements
         this.chunkList.clear();
         this.chunkList.addAll(heartbeat.getChunkMetadataList());
+    }
+
+
+    /*
+    Gets all chunks of a given file
+     */
+    public void getFileChunks(String filename, Set<ChunkLocation> fileChunks) {
+        for (ChunkMetadata chunkMetadata : chunkList) {
+            if (chunkMetadata.getFilename().equals(filename)) {
+                ChunkLocation chunkLocation = new ChunkLocation(id, chunkMetadata.getSequenceNumber());
+                fileChunks.add(chunkLocation);
+            }
+        }
     }
 
 

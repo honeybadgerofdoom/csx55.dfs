@@ -156,7 +156,6 @@ public class Client implements Node {
     Download a file
      */
     public void download(String filepath) {
-        System.out.println("Implement Download: " + filepath);
         DownloadControlPlanRequest downloadControlPlanRequest = new DownloadControlPlanRequest(filepath);
         sendToController(downloadControlPlanRequest);
     }
