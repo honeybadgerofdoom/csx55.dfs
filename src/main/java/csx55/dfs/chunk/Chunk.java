@@ -62,7 +62,7 @@ public class Chunk {
         Write a byte[] to local storage
          */
     private void writeToDisk(byte[] bytes) {
-        String root = "/tmp/";
+        String root = "/tmp/chunk-server/";
         File outputFile = new File(root + path + "_" + chunkMetadata.getSequenceNumber());
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(bytes);

@@ -10,6 +10,8 @@ import csx55.dfs.transport.TCPSender;
 
 import java.net.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 /*
@@ -40,8 +42,22 @@ public class ChunkServer implements Node {
         assignIpAddress();
         assignServerSocketAndPort();
         startTCPServerThread();
+        createDirectory();
         connectToController();
         registerSelf();
+    }
+
+
+    /*
+    Create /tmp/ directory if it doesn't exist yet
+     */
+    private void createDirectory() {
+        try {
+            String filepath = "/tmp/chunk-server/";
+            Files.createDirectories(Paths.get(filepath));
+        } catch (IOException e) {
+            System.err.println("Failed to create temp directory " + e);
+        }
     }
 
 
