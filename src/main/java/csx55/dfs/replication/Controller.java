@@ -3,7 +3,9 @@ package csx55.dfs.replication;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.ControllerCLIManager;
@@ -81,8 +83,8 @@ public class Controller implements Node {
     Handle request for chunk locations
      */
     private void handleLocationsForChunkRequest(Socket socket) {
-        List<ChunkServerInfo> locations = chunkServerManager.findLocationsForChunks();
-        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(locations);
+        Set<ChunkServerInfo> locations = chunkServerManager.findLocationsForChunks();
+        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(new ArrayList<>(locations));
         try {
             TCPSender sender = new TCPSender(socket);
             sender.sendData(locationsForChunkReply.getBytes());
