@@ -43,10 +43,22 @@ public class ControllerCLIManager implements Runnable {
                 controller.pokeChunkServers();
                 break;
             case "chunk-servers":
-                controller.printChunkServers();
-                break;
-            case "chunk-servers-print-chunks":
-                controller.printChunkServerChunks();
+                if (parsedInput.length == 1) {
+                    controller.printChunkServers();
+                    break;
+                }
+                else {
+                    String arg = parsedInput[1];
+                    if (arg.equals("--chunks")) {
+                        controller.printChunkServerChunks();
+                        break;
+                    }
+                    else if (arg.equals("--metadata")) {
+                        controller.printChunkMetadata();
+                        break;
+                    }
+                    System.err.println("Invalid argument: '" + arg + "'\nValid options are '--chunks | --metadata'");
+                }
                 break;
             default:
                 System.out.println("Invalid CLI Input: " + input);

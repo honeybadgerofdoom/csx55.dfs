@@ -33,7 +33,7 @@ public class ChunkMetadata {
         int timestampLength = din.readInt();
         byte[] timestampBytes = new byte[timestampLength];
         din.readFully(timestampBytes);
-        this.filename = new String(timestampBytes);
+        this.timestamp = new String(timestampBytes);
 
         this.sequenceNumber = din.readInt();
         this.versionNumber = din.readInt();
@@ -88,7 +88,7 @@ public class ChunkMetadata {
      */
     @Override
     public String toString() {
-        return "Sequence Number: " + sequenceNumber + " | Version Number: " + versionNumber + " | Timestamp: " + timestamp;
+        return "'" + filename +  "': { Sequence Number: " + sequenceNumber + " | Version Number: " + versionNumber + " | Timestamp: '" + timestamp + "' }";
     }
 
 }

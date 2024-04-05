@@ -83,6 +83,8 @@ public class Controller implements Node {
 
     /*
     Handle a Heartbeat
+    We probably don't need to synchronize this because each heartbeat comes from a different ChunkServer, and
+        ChunkServers have unique ID's. We can just update the correct reference w/o thread safety
      */
     private void handleHeartbeat(Heartbeat heartbeat) {
         chunkServerManager.handleHeartbeat(heartbeat);
@@ -134,6 +136,14 @@ public class Controller implements Node {
      */
     public void printChunkServerChunks() {
         chunkServerManager.sendToAllChunkServers(new PrintChunks());
+    }
+
+
+    /*
+    Print all chunk metadata in controller
+     */
+    public void printChunkMetadata() {
+        chunkServerManager.printChunkMetadata();
     }
 
 

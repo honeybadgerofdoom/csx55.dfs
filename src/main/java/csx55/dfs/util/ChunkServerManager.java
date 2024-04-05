@@ -50,7 +50,7 @@ public class ChunkServerManager {
     private ChunkServerProxy getChunkServerProxyById(String id) {
         for (ChunkServerProxy chunkServerProxy : chunkServers) {
             if (chunkServerProxy.getId().equals(id)) return chunkServerProxy;
-        }
+            }
         return null;
     }
 
@@ -85,6 +85,16 @@ public class ChunkServerManager {
 
 
     /*
+    Print all chunk metadata held by ChunkServerManager
+     */
+    public void printChunkMetadata() {
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            System.out.println(chunkServerProxy.getChunkMetadataString());
+        }
+    }
+
+
+    /*
     Formats the chunkServers into a table
      */
     @Override
@@ -105,8 +115,10 @@ public class ChunkServerManager {
         tableString += String.format("| %-17s | %17s |", "ID", "Space Left") + "\n";
         tableString += tableLine + "\n";
 
-        for (ChunkServerProxy chunkServerProxy : chunkServers) {
-            tableString += chunkServerProxy + "\n";
+        synchronized (chunkServers) {
+            for (ChunkServerProxy chunkServerProxy : chunkServers) {
+                tableString += chunkServerProxy + "\n";
+            }
         }
 
         tableString += tableLine;

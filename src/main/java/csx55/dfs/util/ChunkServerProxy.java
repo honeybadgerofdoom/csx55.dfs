@@ -79,7 +79,7 @@ public class ChunkServerProxy {
         if (spaceLeft == Configs.GB) return "1 GB";
         if (spaceLeft > Configs.MB) {
             int mb = Math.floorDiv(spaceLeft, Configs.MB);
-            int kb = spaceLeft % Configs.MB;
+            int kb = (spaceLeft % Configs.MB) / Configs.KB;
             return mb + " MB " + kb + " KB";
         }
         if (spaceLeft > Configs.KB) {
@@ -94,8 +94,8 @@ public class ChunkServerProxy {
     /*
     Print out ChunkMetadata associated with this ChunkServerProxy
      */
-    public String printChunkMetadata() {
-        String rtn = "Chunk Metadata: {\n";
+    public String getChunkMetadataString() {
+        String rtn = id + ": {\n";
         for (ChunkMetadata chunkData : chunkList) {
             rtn +=  "\t" + chunkData + "\n";
         }
