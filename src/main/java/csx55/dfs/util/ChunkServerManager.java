@@ -115,10 +115,8 @@ public class ChunkServerManager {
         tableString += String.format("| %-17s | %17s |", "ID", "Space Left") + "\n";
         tableString += tableLine + "\n";
 
-        synchronized (chunkServers) {
-            for (ChunkServerProxy chunkServerProxy : chunkServers) {
-                tableString += chunkServerProxy + "\n";
-            }
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            tableString += chunkServerProxy + "\n";
         }
 
         tableString += tableLine;

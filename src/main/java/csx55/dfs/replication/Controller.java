@@ -75,9 +75,28 @@ public class Controller implements Node {
             case Protocol.HEARTBEAT:
                 handleHeartbeat((Heartbeat) event);
                 break;
+            case Protocol.DOWNLOAD_CONTROL_PLAN_REQUEST:
+                handleDownloadRequest((DownloadControlPlanRequest) event, socket);
+                break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
         }
+    }
+
+
+    /*
+    Handle a download file request
+     */
+    private void handleDownloadRequest(DownloadControlPlanRequest downloadControlPlanRequest, Socket socket) {
+        System.out.println(downloadControlPlanRequest);
+        // ToDo build DownloadControlPlanReply
+//        DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply();
+//        try {
+//            TCPSender sender = new TCPSender(socket);
+//            sender.sendData(downloadControlPlanReply.getBytes());
+//        } catch (IOException e) {
+//            System.err.println("Failed to send DownloadControlReply back to client " + e);
+//        }
     }
 
 

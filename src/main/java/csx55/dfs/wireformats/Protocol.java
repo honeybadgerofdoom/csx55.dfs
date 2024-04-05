@@ -12,6 +12,8 @@ public class Protocol {
     public static final int LOCATIONS_FOR_CHUNK_REPLY = 4;
     public static final int PRINT_CHUNKS = 5;
     public static final int HEARTBEAT = 6;
+    public static final int DOWNLOAD_CONTROL_PLAN_REQUEST = 7;
+    public static final int DOWNLOAD_CONTROL_PLAN_REPLY = 8;
     public static final int POKE = 100;
 
 }

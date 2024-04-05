@@ -8,7 +8,7 @@ import java.io.*;
 /*
 Maintain metadata associated with a Chunk
  */
-public class ChunkMetadata {
+public class ChunkMetadata implements Comparable<ChunkMetadata> {
 
     private final DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private int versionNumber, sequenceNumber;
@@ -91,4 +91,8 @@ public class ChunkMetadata {
         return "'" + filename +  "': { Sequence Number: " + sequenceNumber + " | Version Number: " + versionNumber + " | Timestamp: '" + timestamp + "' }";
     }
 
+    @Override
+    public int compareTo(ChunkMetadata chunkMetadata) {
+        return Integer.compare(chunkMetadata.getSequenceNumber(), this.sequenceNumber);
+    }
 }
