@@ -59,8 +59,8 @@ public class Chunk {
 
 
     /*
-    Write a byte[] to local storage
-     */
+        Write a byte[] to local storage
+         */
     private void writeToDisk(byte[] bytes) {
         String root = "/tmp/";
         File outputFile = new File(root + path + "_" + chunkMetadata.getSequenceNumber());
@@ -69,6 +69,11 @@ public class Chunk {
         } catch (IOException e) {
             System.err.println("Failed to write file to disc " + e);
         }
+    }
+
+
+    public ChunkMetadata getChunkMetadata() {
+        return chunkMetadata;
     }
 
 }

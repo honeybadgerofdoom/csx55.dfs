@@ -27,4 +27,11 @@ public class ChunkManager {
         this.chunks.add(chunk);
     }
 
+    public void printChunks() {
+        for (Chunk chunk : chunks) {
+            ChunkMetadata chunkMetadata = chunk.getChunkMetadata();
+            System.out.println("Chunk { " + chunkMetadata + " }");
+        }
+    }
+
 }

@@ -4,14 +4,17 @@ import csx55.dfs.cli.ClientCLIManager;
 import csx55.dfs.node.Node;
 import csx55.dfs.transport.TCPReceiverThread;
 import csx55.dfs.transport.TCPSender;
-import csx55.dfs.wireformats.Event;
-import csx55.dfs.wireformats.LocationsForChunkReply;
-import csx55.dfs.wireformats.LocationsForChunkRequest;
-import csx55.dfs.wireformats.Protocol;
+import csx55.dfs.util.ChunkServerInfo;
+import csx55.dfs.util.Configs;
+import csx55.dfs.wireformats.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 
 /*
@@ -50,15 +53,15 @@ public class Client implements Node {
      */
     private void handleLocationsForChunkReply(LocationsForChunkReply locationsForChunkReply) {
         System.out.println("Received locations from Controller\n" + locationsForChunkReply);
-    }
-
-
-    /*
-    Send LocationsForChunkRequest to Controller
-     */
-    private void sendLocationsForChunkRequest() {
-        LocationsForChunkRequest locationsForChunkRequest = new LocationsForChunkRequest();
-        sendToController(locationsForChunkRequest);
+        ChunkDelivery chunkDelivery = new ChunkDelivery(locationsForChunkReply);
+        ChunkServerInfo firstChunkServer = locationsForChunkReply.getLocations().get(0);
+        try {
+            Socket socket = new Socket(firstChunkServer.getIpAddress(), firstChunkServer.getPortNumber());
+            TCPSender sender = new TCPSender(socket);
+            sender.sendData(chunkDelivery.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send ChunkDelivery");
+        }
     }
 
 
@@ -103,7 +106,40 @@ public class Client implements Node {
     Upload a file
      */
     public void upload(String filepath) {
-        sendLocationsForChunkRequest();
+        byte[] file = getFileAsBytes(filepath);
+        if (file != null) {
+            int numberOfChunks = file.length / Configs.CHUNK_SIZE;  // Find total number of chunks
+            if (file.length % Configs.CHUNK_SIZE > 0) numberOfChunks++;  // Increment if we have a chunk w/ leftover
+            for (int i = 0; i < numberOfChunks - 1; i++) {  // Iterate number of chunks times
+                int startIndex = i * Configs.CHUNK_SIZE;
+                int endIndex = (i + 1) * Configs.CHUNK_SIZE;
+                byte[] chunk = Arrays.copyOfRange(file, startIndex, endIndex);  // Build a chunk
+                int sequenceNumber = i + 1;
+                sendLocationsForChunkRequest(chunk, sequenceNumber, filepath);  // Send the request for this chunk
+            }
+        }
+    }
+
+
+    /*
+    Send LocationsForChunkRequest to Controller
+     */
+    private void sendLocationsForChunkRequest(byte[] chunk, int sequenceNumber, String filepath) {
+        LocationsForChunkRequest locationsForChunkRequest = new LocationsForChunkRequest(sequenceNumber, chunk, filepath);  // Build event
+        sendToController(locationsForChunkRequest);  // Send it to the Controller
+    }
+
+
+    /*
+    Upload a file and store as a byte[]
+     */
+    private byte[] getFileAsBytes(String filepath) {
+        try {
+            return Files.readAllBytes(Paths.get(filepath));
+        } catch (IOException e) {
+            System.err.println("'" + filepath + "' does not exist.");
+            return null;
+        }
     }
 
 

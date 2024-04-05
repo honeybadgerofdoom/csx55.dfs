@@ -71,7 +71,7 @@ public class Controller implements Node {
                 handleRegisterRequest((RegisterRequest) event);
                 break;
             case Protocol.LOCATIONS_FOR_CHUNK_REQUEST:
-                handleLocationsForChunkRequest(socket);
+                handleLocationsForChunkRequest((LocationsForChunkRequest) event, socket);
                 break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
@@ -82,9 +82,9 @@ public class Controller implements Node {
     /*
     Handle request for chunk locations
      */
-    private void handleLocationsForChunkRequest(Socket socket) {
+    private void handleLocationsForChunkRequest(LocationsForChunkRequest locationsForChunkRequest, Socket socket) {
         Set<ChunkServerInfo> locations = chunkServerManager.findLocationsForChunks();
-        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(new ArrayList<>(locations));
+        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(new ArrayList<>(locations), locationsForChunkRequest);
         try {
             TCPSender sender = new TCPSender(socket);
             sender.sendData(locationsForChunkReply.getBytes());

@@ -126,6 +126,7 @@ public class ChunkServer implements Node {
     Pass the chunk to my chunkManager, forward message if need be
      */
     private void handleChunkDelivery(ChunkDelivery chunkDelivery) {
+        System.out.println("Handling a ChunkDelivery...");
         chunkManager.addChunk(chunkDelivery);
         if (!chunkDelivery.isLastChunkServer(id)) {
             ChunkServerInfo next = chunkDelivery.getNext(id);
@@ -142,6 +143,7 @@ public class ChunkServer implements Node {
                 }
             }
         }
+        chunkManager.printChunks();
     }
 
 

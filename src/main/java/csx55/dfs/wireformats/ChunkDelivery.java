@@ -14,12 +14,12 @@ public class ChunkDelivery extends Event {
     private List<ChunkServerInfo> chunkServerInfoList;
     private int numberOfChunkServers;
 
-    public ChunkDelivery(byte[] chunkBytes, String filepath, int sequenceNumber, List<ChunkServerInfo> chunkServerInfoList) {
+    public ChunkDelivery(LocationsForChunkReply locationsForChunkReply) {
         super(Protocol.CHUNK_DELIVERY);
-        this.chunkBytes = chunkBytes;
-        this.filepath = filepath;
-        this.sequenceNumber = sequenceNumber;
-        this.chunkServerInfoList = chunkServerInfoList;
+        this.chunkBytes = locationsForChunkReply.getChunk();
+        this.filepath = locationsForChunkReply.getFilepath();
+        this.sequenceNumber = locationsForChunkReply.getSequenceNumber();
+        this.chunkServerInfoList = locationsForChunkReply.getLocations();
         this.numberOfChunkServers = chunkServerInfoList.size();
     }
 
