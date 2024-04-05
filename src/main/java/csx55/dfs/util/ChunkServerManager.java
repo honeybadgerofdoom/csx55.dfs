@@ -3,8 +3,7 @@ package csx55.dfs.util;
 import csx55.dfs.wireformats.Event;
 import csx55.dfs.wireformats.RegisterRequest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 /*
@@ -13,9 +12,11 @@ Manages access to ChunkServers via ChunkServerProxies
 public class ChunkServerManager {
 
     private final List<ChunkServerProxy> chunkServers;
+    private final Random rng;
 
     public ChunkServerManager() {
         this.chunkServers = new ArrayList<>();
+        this.rng = new Random(42);
     }
 
 
@@ -35,6 +36,26 @@ public class ChunkServerManager {
         for (ChunkServerProxy chunkServerProxy : chunkServers) {
             chunkServerProxy.writeToSocket(event);
         }
+    }
+
+
+    /*
+    Finds 3 random ChunkServerProxy objects with >64kb spaceLeft
+     */
+    public Set<ChunkServerInfo> findLocationsForChunks() {
+        List<ChunkServerProxy> candidates = new ArrayList<>();
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            if (chunkServerProxy.hasSpaceLeft()) candidates.add(chunkServerProxy);
+        }
+        Set<ChunkServerInfo> randomChunkServers = new HashSet<>();
+        while (randomChunkServers.size() < Configs.NUMBER_OF_REPLICAS) {
+            int nextInt = rng.nextInt();
+            int idx = Math.abs(nextInt % candidates.size());
+            ChunkServerProxy chunkServerProxy = candidates.get(idx);
+            ChunkServerInfo chunkServerInfo = new ChunkServerInfo(chunkServerProxy);
+            randomChunkServers.add(chunkServerInfo);
+        }
+        return randomChunkServers;
     }
 
 

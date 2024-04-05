@@ -39,7 +39,7 @@ public class TCPReceiverThread implements Runnable {
 
                 EventFactory eventFactory = EventFactory.getInstance();
                 Event event = eventFactory.getEvent(data);
-                this.node.onEvent(event);
+                this.node.onEvent(event, socket);
                 /*
                 * ToDo
                 *  - Fix 'null' printing out when a peer leaves?

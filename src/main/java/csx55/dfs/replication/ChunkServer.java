@@ -1,6 +1,5 @@
 package csx55.dfs.replication;
 
-import csx55.dfs.chunk.Chunk;
 import csx55.dfs.chunk.ChunkManager;
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.Poke;
@@ -11,9 +10,6 @@ import csx55.dfs.transport.TCPSender;
 
 import java.net.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /*
@@ -108,7 +104,7 @@ public class ChunkServer implements Node {
     /*
     Handle incoming Events from TCPReceiverThread
      */
-    public void onEvent(Event event) {
+    public void onEvent(Event event, Socket socket) {
         if (event != null) {
             int type = event.getType();
             switch (type) {
