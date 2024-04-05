@@ -35,6 +35,8 @@ public class EventFactory {
                 return  new LocationsForChunkRequest(bytes);
             case Protocol.LOCATIONS_FOR_CHUNK_REPLY:
                 return  new LocationsForChunkReply(bytes);
+            case Protocol.PRINT_CHUNKS:
+                return new PrintChunks(bytes);
             case Protocol.POKE:
                 return new Poke(bytes);
             default:

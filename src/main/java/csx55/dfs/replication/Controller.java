@@ -13,6 +13,7 @@ import csx55.dfs.testing.Poke;
 import csx55.dfs.transport.TCPSender;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.ChunkServerManager;
+import csx55.dfs.util.ChunkServerProxy;
 import csx55.dfs.wireformats.*;
 
 
@@ -71,7 +72,7 @@ public class Controller implements Node {
                 handleRegisterRequest((RegisterRequest) event);
                 break;
             case Protocol.LOCATIONS_FOR_CHUNK_REQUEST:
-                handleLocationsForChunkRequest(socket);
+                handleLocationsForChunkRequest((LocationsForChunkRequest) event, socket);
                 break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
@@ -82,9 +83,9 @@ public class Controller implements Node {
     /*
     Handle request for chunk locations
      */
-    private void handleLocationsForChunkRequest(Socket socket) {
+    private void handleLocationsForChunkRequest(LocationsForChunkRequest locationsForChunkRequest, Socket socket) {
         Set<ChunkServerInfo> locations = chunkServerManager.findLocationsForChunks();
-        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(new ArrayList<>(locations));
+        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(new ArrayList<>(locations), locationsForChunkRequest);
         try {
             TCPSender sender = new TCPSender(socket);
             sender.sendData(locationsForChunkReply.getBytes());
@@ -116,6 +117,14 @@ public class Controller implements Node {
      */
     public void printChunkServers() {
         System.out.println(chunkServerManager);
+    }
+
+
+    /*
+    Print out all ChunkServers in a table
+     */
+    public void printChunkServerChunks() {
+        chunkServerManager.sendToAllChunkServers(new PrintChunks());
     }
 
 

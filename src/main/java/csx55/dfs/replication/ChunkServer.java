@@ -10,6 +10,8 @@ import csx55.dfs.transport.TCPSender;
 
 import java.net.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 /*
@@ -40,8 +42,22 @@ public class ChunkServer implements Node {
         assignIpAddress();
         assignServerSocketAndPort();
         startTCPServerThread();
+        createDirectory();
         connectToController();
         registerSelf();
+    }
+
+
+    /*
+    Create /tmp/ directory if it doesn't exist yet
+     */
+    private void createDirectory() {
+        try {
+            String filepath = "/tmp/chunk-server/";
+            Files.createDirectories(Paths.get(filepath));
+        } catch (IOException e) {
+            System.err.println("Failed to create temp directory " + e);
+        }
     }
 
 
@@ -111,6 +127,9 @@ public class ChunkServer implements Node {
                 case Protocol.CHUNK_DELIVERY:
                     handleChunkDelivery((ChunkDelivery) event);
                     break;
+                case Protocol.PRINT_CHUNKS:
+                    chunkManager.printChunks();
+                    break;
                 case Protocol.POKE:
                     handlePoke((Poke) event);
                     break;
@@ -125,7 +144,7 @@ public class ChunkServer implements Node {
     Handle a chunk delivery
     Pass the chunk to my chunkManager, forward message if need be
      */
-    private void handleChunkDelivery(ChunkDelivery chunkDelivery) {
+    private synchronized void handleChunkDelivery(ChunkDelivery chunkDelivery) {
         chunkManager.addChunk(chunkDelivery);
         if (!chunkDelivery.isLastChunkServer(id)) {
             ChunkServerInfo next = chunkDelivery.getNext(id);
