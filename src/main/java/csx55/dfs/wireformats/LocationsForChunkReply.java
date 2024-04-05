@@ -65,7 +65,7 @@ public class LocationsForChunkReply extends Event {
 
     @Override
     public String toString() {
-        String rtn = "LocationsForChunkReply {\n";
+        String rtn = "Sequence #" + sequenceNumber + " {\n";
         for (ChunkServerInfo chunkServerInfo : locations) {
             rtn += "\t" + chunkServerInfo + "\n";
         }

@@ -34,7 +34,7 @@ public class ChunkManager {
     public void printChunks() {
         for (Chunk chunk : chunks) {
             ChunkMetadata chunkMetadata = chunk.getChunkMetadata();
-            System.out.println("Chunk { " + chunkMetadata + " }");
+            System.out.println(chunk.getFilename() + " { " + chunkMetadata + " }");
         }
     }
 

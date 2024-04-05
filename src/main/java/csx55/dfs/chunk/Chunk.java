@@ -93,4 +93,7 @@ public class Chunk {
         return chunkMetadata;
     }
 
+    public String getFilename() {
+        return filename;
+    }
 }

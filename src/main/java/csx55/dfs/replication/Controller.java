@@ -13,6 +13,7 @@ import csx55.dfs.testing.Poke;
 import csx55.dfs.transport.TCPSender;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.ChunkServerManager;
+import csx55.dfs.util.ChunkServerProxy;
 import csx55.dfs.wireformats.*;
 
 
@@ -116,6 +117,14 @@ public class Controller implements Node {
      */
     public void printChunkServers() {
         System.out.println(chunkServerManager);
+    }
+
+
+    /*
+    Print out all ChunkServers in a table
+     */
+    public void printChunkServerChunks() {
+        chunkServerManager.sendToAllChunkServers(new PrintChunks());
     }
 
 

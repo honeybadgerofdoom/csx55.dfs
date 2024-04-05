@@ -10,6 +10,7 @@ public class Protocol {
     public static final int CHUNK_DELIVERY = 2;
     public static final int LOCATIONS_FOR_CHUNK_REQUEST = 3;
     public static final int LOCATIONS_FOR_CHUNK_REPLY = 4;
+    public static final int PRINT_CHUNKS = 5;
     public static final int POKE = 100;
 
 }

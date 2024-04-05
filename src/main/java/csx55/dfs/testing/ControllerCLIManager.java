@@ -45,6 +45,9 @@ public class ControllerCLIManager implements Runnable {
             case "chunk-servers":
                 controller.printChunkServers();
                 break;
+            case "chunk-servers-print-chunks":
+                controller.printChunkServerChunks();
+                break;
             default:
                 System.out.println("Invalid CLI Input: " + input);
         }

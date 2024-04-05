@@ -127,6 +127,9 @@ public class ChunkServer implements Node {
                 case Protocol.CHUNK_DELIVERY:
                     handleChunkDelivery((ChunkDelivery) event);
                     break;
+                case Protocol.PRINT_CHUNKS:
+                    chunkManager.printChunks();
+                    break;
                 case Protocol.POKE:
                     handlePoke((Poke) event);
                     break;
@@ -158,7 +161,6 @@ public class ChunkServer implements Node {
                 }
             }
         }
-        chunkManager.printChunks();
     }
 
 
