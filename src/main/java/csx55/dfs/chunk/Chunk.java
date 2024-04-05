@@ -1,6 +1,7 @@
 package csx55.dfs.chunk;
 
 
+import csx55.dfs.util.Configs;
 import csx55.dfs.wireformats.ChunkDelivery;
 
 import java.io.File;
@@ -8,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.util.Arrays;
 
 /*
 Represents a chunk of a file
@@ -51,7 +54,18 @@ public class Chunk {
     Validates the bytes before we write them to disk
      */
     private void validateBytesOnStore(byte[] bytes) {
-        // ToDo Create checksums
+        int numberOfSlices = bytes.length / Configs.SLICE_SIZE;  // There should be 8 slices always
+        if (bytes.length % Configs.SLICE_SIZE != 0) {
+            System.err.println(bytes.length % Configs.SLICE_SIZE + " leftover bytes that don't fit into " + numberOfSlices + " slices");
+        }
+        System.out.println("Found " + numberOfSlices + " slices (should be 8)");
+        for (int i = 0; i < numberOfSlices - 1; i++) {  // Iterate number of slices times
+            int startIndex = i * Configs.SLICE_SIZE;
+            int endIndex = (i + 1) * Configs.SLICE_SIZE;
+            byte[] slice = Arrays.copyOfRange(bytes, startIndex, endIndex);  // Build a slice
+            Checksum checksum = new Checksum(slice);
+            checksums[i] = checksum;
+        }
     }
 
 
@@ -96,4 +110,15 @@ public class Chunk {
     public String getFilename() {
         return filename;
     }
+
+    public String getChecksumStrings() {
+        String rtn = "[";
+        for (Checksum checksum : checksums) {
+            rtn += checksum + ", ";
+        }
+        rtn = rtn.substring(0, rtn.length() - 2);
+        rtn += "]";
+        return rtn;
+    }
+
 }
