@@ -37,6 +37,8 @@ public class EventFactory {
                 return  new LocationsForChunkReply(bytes);
             case Protocol.PRINT_CHUNKS:
                 return new PrintChunks(bytes);
+            case Protocol.HEARTBEAT:
+                return new Heartbeat(bytes);
             case Protocol.POKE:
                 return new Poke(bytes);
             default:
