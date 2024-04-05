@@ -49,7 +49,8 @@ public class ChunkServerManager {
         }
         Set<ChunkServerInfo> randomChunkServers = new HashSet<>();
         while (randomChunkServers.size() < Configs.NUMBER_OF_REPLICAS) {
-            int idx = Math.abs(rng.nextInt() % Configs.NUMBER_OF_REPLICAS);
+            int nextInt = rng.nextInt();
+            int idx = Math.abs(nextInt % candidates.size());
             ChunkServerProxy chunkServerProxy = candidates.get(idx);
             ChunkServerInfo chunkServerInfo = new ChunkServerInfo(chunkServerProxy);
             randomChunkServers.add(chunkServerInfo);
