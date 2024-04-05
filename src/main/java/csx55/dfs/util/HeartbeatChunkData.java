@@ -1,5 +1,7 @@
 package csx55.dfs.util;
 
+import csx55.dfs.chunk.Chunk;
+
 import java.io.*;
 
 public class HeartbeatChunkData {
@@ -7,9 +9,9 @@ public class HeartbeatChunkData {
     private final String filename;
     private final int sequenceNumber;
 
-    public HeartbeatChunkData(String filename, int sequenceNumber) {
-        this.filename = filename;
-        this.sequenceNumber = sequenceNumber;
+    public HeartbeatChunkData(Chunk chunk) {
+        this.filename = chunk.getFilename();
+        this.sequenceNumber = chunk.getChunkMetadata().getSequenceNumber();
     }
 
     public HeartbeatChunkData(byte[] bytes) throws IOException {

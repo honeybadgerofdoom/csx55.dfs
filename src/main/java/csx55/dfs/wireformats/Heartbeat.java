@@ -13,10 +13,10 @@ public class Heartbeat extends Event {
     private int numberOfChunks;
     private List<HeartbeatChunkData> heartbeatChunkDataList;
 
-    public Heartbeat(int spaceLeft, int numberOfChunks, List<HeartbeatChunkData> heartbeatChunkDataList) {
+    public Heartbeat(int spaceLeft, List<HeartbeatChunkData> heartbeatChunkDataList) {
         super(Protocol.HEARTBEAT);
         this.spaceLeft = spaceLeft;
-        this.numberOfChunks = numberOfChunks;
+        this.numberOfChunks = heartbeatChunkDataList.size();
         this.heartbeatChunkDataList = heartbeatChunkDataList;
     }
 
