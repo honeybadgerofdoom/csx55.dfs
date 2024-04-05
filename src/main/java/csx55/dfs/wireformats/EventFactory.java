@@ -29,6 +29,8 @@ public class EventFactory {
         switch(messageType) {
             case Protocol.REGISTER_REQUEST:
                 return new RegisterRequest(bytes);
+            case Protocol.CHUNK_DELIVERY:
+                return new ChunkDelivery(bytes);
             case Protocol.POKE:
                 return new Poke(bytes);
             default:

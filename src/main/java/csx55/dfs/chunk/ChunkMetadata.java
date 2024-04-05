@@ -17,10 +17,21 @@ public class ChunkMetadata {
         this.timestamp = LocalDateTime.now();
     }
 
+    public int getVersionNumber() {
+        return versionNumber;
+    }
+
+    public int getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 
     /*
-    Formats members into readable output
-     */
+        Formats members into readable output
+         */
     @Override
     public String toString() {
         return "Sequence Number: " + sequenceNumber + " | Version Number: " + versionNumber + " | Timestamp: " + timestamp;

@@ -7,5 +7,6 @@ public class Configs {
     public static final int MB = 1024 * KB;
     public static final int GB = 1024 * MB;
     public static final int CHUNK_SIZE = 64 * KB;
+    public static final int SLICE_SIZE = 8 * KB;
 
 }
