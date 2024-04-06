@@ -33,6 +33,16 @@ public class ChunkManager {
     }
 
 
+    public byte[] retrieveChunk(String filename, int sequenceNumber) {
+        for (Chunk chunk : chunks) {
+            if (chunk.isTarget(filename, sequenceNumber)) {
+                return chunk.getChunkBytes();
+            }
+        }
+        return null;
+    }
+
+
     /*
     Return a Heartbeat message representing the state of the ChunkManager
     ToDo ensure this only gets data since LAST heartbeat (for minor heartbeat)

@@ -37,4 +37,9 @@ public class DownloadDataPlaneRequest extends Event {
         this.sequenceNumber = dataInputStream.readInt();
     }
 
+    @Override
+    public String toString() {
+        return "Requesting '" + filename + "', sequence #" + sequenceNumber;
+    }
+
 }

@@ -45,6 +45,9 @@ public class Client implements Node {
             case Protocol.DOWNLOAD_CONTROL_PLANE_REPLY:
                 handleDownloadControlPlanReply((DownloadControlPlanReply) event);
                 break;
+            case Protocol.DOWNLOAD_DATA_PLANE_REPLY:
+                handleDownloadDataPlaneReply((DownloadDataPlaneReply) event);
+                break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
         }
@@ -52,9 +55,17 @@ public class Client implements Node {
 
 
     /*
+    Handle download data plane reply
+     */
+    private void handleDownloadDataPlaneReply(DownloadDataPlaneReply downloadDataPlaneReply) {
+        System.out.println(downloadDataPlaneReply);
+    }
+
+
+    /*
     Handle Download Control Plane reply
      */
-    public void handleDownloadControlPlanReply(DownloadControlPlanReply downloadControlPlanReply) {
+    private void handleDownloadControlPlanReply(DownloadControlPlanReply downloadControlPlanReply) {
         for (ChunkLocation chunkLocation : downloadControlPlanReply.getChunkLocationList()) {
             try {
                 Socket socket = new Socket(chunkLocation.getIpAddress(), chunkLocation.getPortNumber());
