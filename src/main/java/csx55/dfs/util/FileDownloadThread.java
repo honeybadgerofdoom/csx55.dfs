@@ -5,9 +5,15 @@ import csx55.dfs.wireformats.DownloadDataPlaneReply;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class FileDownloadThread implements Runnable {
 
+    private final Lock loopLock = new ReentrantLock();
     private final String filepath;
     private final int numberOfChunks;
     private final DownloadDataPlaneReply[] chunks;
@@ -27,25 +33,37 @@ public class FileDownloadThread implements Runnable {
     }
 
     private void writeFile() {
-        System.out.println("All chunks gathered, writing to file '" + filepath + "'");
+        String path = Configs.pathFromPathAndName(filepath);
+        if (!path.equals(filepath)) {
+            try {
+                Files.createDirectories(Paths.get(path));
+            } catch (IOException e) {
+                System.err.println("Failed to create directory for " + filepath + " " + e);
+            }
+        }
         File outputFile = new File(filepath);
-
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-            for (int i = 0; i < numberOfChunks; i++) {
-                DownloadDataPlaneReply downloadDataPlaneReply = chunks[i];
-                outputStream.write(downloadDataPlaneReply.getChunkBytes());
+            for (DownloadDataPlaneReply downloadDataPlaneReply : chunks) {
+                byte[] bytes = downloadDataPlaneReply.getChunkBytes();
+                int i;
+                for (i = bytes.length - 1; i >= 0 && bytes[i] == 0; i--) { }
+                if (i != bytes.length - 1) bytes = Arrays.copyOfRange(bytes, 0, i + 1);
+                outputStream.write(bytes);
             }
         } catch (IOException e) {
             System.err.println("Failed to write file to disc " + e);
         }
     }
 
-    public synchronized void addChunk(DownloadDataPlaneReply downloadDataPlaneReply) {
+    public void addChunk(DownloadDataPlaneReply downloadDataPlaneReply) {
         chunks[downloadDataPlaneReply.getSequenceNumber() - 1] = downloadDataPlaneReply;
-        currentNumberOfChunksGathered++;
-        System.out.println("(" + currentNumberOfChunksGathered + "/" + numberOfChunks + ")");
-        if (currentNumberOfChunksGathered == numberOfChunks) waitingForChunks = false;
-        System.out.println("Waiting: " + waitingForChunks);
+        try {
+            loopLock.lock();
+            currentNumberOfChunksGathered++;
+            if (currentNumberOfChunksGathered == numberOfChunks) waitingForChunks = false;
+        } catch (Exception ignored) { } finally {
+            loopLock.unlock();
+        }
     }
 
 }
