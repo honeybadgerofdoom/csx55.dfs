@@ -2,16 +2,18 @@ package csx55.dfs.wireformats;
 
 import java.io.IOException;
 
-public class DownloadControlPlanRequest extends Event {
+public class DownloadControlPlaneRequest extends Event {
 
     private String filename;
+    private String newFileName;
 
-    public DownloadControlPlanRequest(String filename) {
+    public DownloadControlPlaneRequest(String filename, String newFileName) {
         super(Protocol.DOWNLOAD_CONTROL_PLANE_REQUEST);
         this.filename = filename;
+        this.newFileName = newFileName;
     }
 
-    public DownloadControlPlanRequest(byte[] bytes) throws IOException {
+    public DownloadControlPlaneRequest(byte[] bytes) throws IOException {
         super(bytes);
     }
 
@@ -19,14 +21,20 @@ public class DownloadControlPlanRequest extends Event {
         return filename;
     }
 
+    public String getNewFileName() {
+        return newFileName;
+    }
+
     @Override
     protected void marshall() throws IOException {
         marshallString(filename);
+        marshallString(newFileName);
     }
 
     @Override
     protected void unmarshall() throws IOException {
         this.filename = unmarshallString();
+        this.newFileName = unmarshallString();
     }
 
     @Override

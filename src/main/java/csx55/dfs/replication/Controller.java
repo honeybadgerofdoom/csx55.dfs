@@ -79,7 +79,7 @@ public class Controller implements Node {
                 handleHeartbeat((Heartbeat) event);
                 break;
             case Protocol.DOWNLOAD_CONTROL_PLANE_REQUEST:
-                handleDownloadRequest((DownloadControlPlanRequest) event, socket);
+                handleDownloadRequest((DownloadControlPlaneRequest) event, socket);
                 break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
@@ -90,14 +90,19 @@ public class Controller implements Node {
     /*
     Handle a download file request
      */
-    private void handleDownloadRequest(DownloadControlPlanRequest downloadControlPlanRequest, Socket socket) {
-        String filename = Configs.filenameFromPath(downloadControlPlanRequest.getFilename());
+    private void handleDownloadRequest(DownloadControlPlaneRequest downloadControlPlaneRequest, Socket socket) {
+        String filename = Configs.filenameFromPath(downloadControlPlaneRequest.getFilename());
         List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(filename);
-        DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply(chunkLocationList, downloadControlPlanRequest.getFilename());
+        DownloadControlPlaneReply downloadControlPlaneReply =
+                new DownloadControlPlaneReply(
+                        chunkLocationList,
+                        downloadControlPlaneRequest.getFilename(),
+                        downloadControlPlaneRequest.getNewFileName()
+                );
         // FIXME If its empty, we don't have that file. Print a message to the console!
         try {
             TCPSender sender = new TCPSender(socket);
-            sender.sendData(downloadControlPlanReply.getBytes());
+            sender.sendData(downloadControlPlaneReply.getBytes());
         } catch (IOException e) {
             System.err.println("Failed to send DownloadControlReply back to client " + e);
         }

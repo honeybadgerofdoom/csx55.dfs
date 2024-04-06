@@ -40,9 +40,9 @@ public class EventFactory {
             case Protocol.HEARTBEAT:
                 return new Heartbeat(bytes);
             case Protocol.DOWNLOAD_CONTROL_PLANE_REQUEST:
-                return new DownloadControlPlanRequest(bytes);
+                return new DownloadControlPlaneRequest(bytes);
             case Protocol.DOWNLOAD_CONTROL_PLANE_REPLY:
-                return new DownloadControlPlanReply(bytes);
+                return new DownloadControlPlaneReply(bytes);
             case Protocol.DOWNLOAD_DATA_PLANE_REQUEST:
                 return new DownloadDataPlaneRequest(bytes);
             case Protocol.DOWNLOAD_DATA_PLANE_REPLY:

@@ -46,11 +46,12 @@ public class ClientCLIManager implements Runnable {
                 else System.err.println("Invalid usage. Please provide a file path. EX: upload desktop/input/test.txt");
                 break;
             case "download":
-                if (parsedInput.length == 2) {
+                if (parsedInput.length == 3) {
                     String filepath = parsedInput[1];
-                    client.download(filepath);
+                    String newFileName = parsedInput[2];
+                    client.download(filepath, newFileName);
                 }
-                else System.err.println("Invalid usage. Please provide a file path. EX: upload desktop/input/test.txt");
+                else System.err.println("Invalid usage. Please provide a file path and new file name. EX: upload desktop/input/test.txt test.txt");
                 break;
             default:
                 System.out.println("Invalid CLI Input: " + input);

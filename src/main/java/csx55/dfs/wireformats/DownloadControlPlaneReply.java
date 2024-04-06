@@ -6,20 +6,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DownloadControlPlanReply extends Event {
+public class DownloadControlPlaneReply extends Event {
 
     private int numberOfChunks;
     private List<ChunkLocation> chunkLocationList;
     private String filename;
+    private String newFileName;
 
-    public DownloadControlPlanReply(List<ChunkLocation> chunkLocationList, String filename) {
+    public DownloadControlPlaneReply(List<ChunkLocation> chunkLocationList, String filename, String newFileName) {
         super(Protocol.DOWNLOAD_CONTROL_PLANE_REPLY);
         this.numberOfChunks = chunkLocationList.size();
         this.chunkLocationList = chunkLocationList;
         this.filename = filename;
+        this.newFileName = newFileName;
     }
 
-    public DownloadControlPlanReply(byte[] bytes) throws IOException {
+    public DownloadControlPlaneReply(byte[] bytes) throws IOException {
         super(bytes);
     }
 
@@ -31,6 +33,10 @@ public class DownloadControlPlanReply extends Event {
         return filename;
     }
 
+    public String getNewFileName() {
+        return newFileName;
+    }
+
     @Override
     protected void marshall() throws IOException {
         dataOutputStream.writeInt(numberOfChunks);
@@ -38,6 +44,7 @@ public class DownloadControlPlanReply extends Event {
             marshallBytes(chunkLocation.getBytes());
         }
         marshallString(filename);
+        marshallString(newFileName);
     }
 
     @Override
@@ -49,6 +56,7 @@ public class DownloadControlPlanReply extends Event {
             chunkLocationList.add(chunkLocation);
         }
         this.filename = unmarshallString();
+        this.newFileName = unmarshallString();
     }
 
     @Override

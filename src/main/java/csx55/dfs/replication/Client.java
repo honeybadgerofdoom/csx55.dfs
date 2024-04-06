@@ -7,6 +7,7 @@ import csx55.dfs.transport.TCPSender;
 import csx55.dfs.util.ChunkLocation;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.Configs;
+import csx55.dfs.util.FileDownloadThread;
 import csx55.dfs.wireformats.*;
 
 import java.io.IOException;
@@ -30,11 +31,13 @@ public class Client implements Node {
     private final int controllerPortNumber;
     private Socket socketToController;
     private final Map<String, Socket> socketMap;
+    private final Map<String, FileDownloadThread> downloadThreadMap;
 
     public Client(String controllerIpAddress, int controllerPortNumber) {
         this.controllerIpAddress = controllerIpAddress;
         this.controllerPortNumber = controllerPortNumber;
         this.socketMap = new HashMap<>();
+        this.downloadThreadMap = new HashMap<>();
     }
 
 
@@ -47,7 +50,7 @@ public class Client implements Node {
                 handleLocationsForChunkReply((LocationsForChunkReply) event);
                 break;
             case Protocol.DOWNLOAD_CONTROL_PLANE_REPLY:
-                handleDownloadControlPlanReply((DownloadControlPlanReply) event);
+                handleDownloadControlPlanReply((DownloadControlPlaneReply) event);
                 break;
             case Protocol.DOWNLOAD_DATA_PLANE_REPLY:
                 handleDownloadDataPlaneReply((DownloadDataPlaneReply) event);
@@ -63,14 +66,19 @@ public class Client implements Node {
      */
     private void handleDownloadDataPlaneReply(DownloadDataPlaneReply downloadDataPlaneReply) {
         System.out.println(downloadDataPlaneReply);
+        downloadThreadMap.get(downloadDataPlaneReply.getFilename()).addChunk(downloadDataPlaneReply);
     }
 
 
     /*
     Handle Download Control Plane reply
      */
-    private void handleDownloadControlPlanReply(DownloadControlPlanReply downloadControlPlanReply) {
-        for (ChunkLocation chunkLocation : downloadControlPlanReply.getChunkLocationList()) {
+    private void handleDownloadControlPlanReply(DownloadControlPlaneReply downloadControlPlaneReply) {
+        FileDownloadThread fileDownloadThread = new FileDownloadThread(downloadControlPlaneReply.getNewFileName(), downloadControlPlaneReply.getChunkLocationList().size());
+        Thread dlThread = new Thread(fileDownloadThread);
+        dlThread.start();
+        downloadThreadMap.put(downloadControlPlaneReply.getFilename(), fileDownloadThread);
+        for (ChunkLocation chunkLocation : downloadControlPlaneReply.getChunkLocationList()) {
             try {
                 String key = chunkLocation.getIpAddress() + ":" + chunkLocation.getPortNumber();
                 if (!socketMap.containsKey(key)) {
@@ -83,9 +91,9 @@ public class Client implements Node {
                 TCPSender sender = new TCPSender(socketMap.get(key));
                 DownloadDataPlaneRequest downloadDataPlaneRequest =
                         new DownloadDataPlaneRequest(
-                                downloadControlPlanReply.getFilename(),
+                                downloadControlPlaneReply.getFilename(),
                                 chunkLocation.getSequenceNumber(),
-                                downloadControlPlanReply.getChunkLocationList().size()
+                                downloadControlPlaneReply.getChunkLocationList().size()
                         );
                 sender.sendData(downloadDataPlaneRequest.getBytes());
             } catch (IOException e) {
@@ -192,9 +200,9 @@ public class Client implements Node {
     /*
     Download a file
      */
-    public void download(String filepath) {
-        DownloadControlPlanRequest downloadControlPlanRequest = new DownloadControlPlanRequest(filepath);
-        sendToController(downloadControlPlanRequest);
+    public void download(String filepath, String newFileName) {
+        DownloadControlPlaneRequest downloadControlPlaneRequest = new DownloadControlPlaneRequest(filepath, newFileName);
+        sendToController(downloadControlPlaneRequest);
     }
 
 
