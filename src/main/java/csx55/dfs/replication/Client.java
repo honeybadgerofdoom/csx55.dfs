@@ -4,6 +4,7 @@ import csx55.dfs.cli.ClientCLIManager;
 import csx55.dfs.node.Node;
 import csx55.dfs.transport.TCPReceiverThread;
 import csx55.dfs.transport.TCPSender;
+import csx55.dfs.util.ChunkLocation;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.Configs;
 import csx55.dfs.wireformats.*;
@@ -41,7 +42,7 @@ public class Client implements Node {
             case Protocol.LOCATIONS_FOR_CHUNK_REPLY:
                 handleLocationsForChunkReply((LocationsForChunkReply) event);
                 break;
-            case Protocol.DOWNLOAD_CONTROL_PLAN_REPLY:
+            case Protocol.DOWNLOAD_CONTROL_PLANE_REPLY:
                 handleDownloadControlPlanReply((DownloadControlPlanReply) event);
                 break;
             default:
@@ -54,7 +55,16 @@ public class Client implements Node {
     Handle Download Control Plane reply
      */
     public void handleDownloadControlPlanReply(DownloadControlPlanReply downloadControlPlanReply) {
-        System.out.println(downloadControlPlanReply);
+        for (ChunkLocation chunkLocation : downloadControlPlanReply.getChunkLocationList()) {
+            try {
+                Socket socket = new Socket(chunkLocation.getIpAddress(), chunkLocation.getPortNumber());
+                TCPSender sender = new TCPSender(socket);
+                DownloadDataPlaneRequest downloadDataPlaneRequest = new DownloadDataPlaneRequest(downloadControlPlanReply.getFilename(), chunkLocation.getSequenceNumber());
+                sender.sendData(downloadDataPlaneRequest.getBytes());
+            } catch (IOException e) {
+                System.err.println("Failed to send DownloadDataPlaneRequest to " + chunkLocation + " " + e);
+            }
+        }
     }
 
 

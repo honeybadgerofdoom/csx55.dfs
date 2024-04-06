@@ -10,15 +10,25 @@ public class DownloadControlPlanReply extends Event {
 
     private int numberOfChunks;
     private List<ChunkLocation> chunkLocationList;
+    private String filename;
 
-    public DownloadControlPlanReply(List<ChunkLocation> chunkLocationList) {
-        super(Protocol.DOWNLOAD_CONTROL_PLAN_REPLY);
+    public DownloadControlPlanReply(List<ChunkLocation> chunkLocationList, String filename) {
+        super(Protocol.DOWNLOAD_CONTROL_PLANE_REPLY);
         this.numberOfChunks = chunkLocationList.size();
         this.chunkLocationList = chunkLocationList;
+        this.filename = filename;
     }
 
     public DownloadControlPlanReply(byte[] bytes) throws IOException {
         super(bytes);
+    }
+
+    public List<ChunkLocation> getChunkLocationList() {
+        return chunkLocationList;
+    }
+
+    public String getFilename() {
+        return filename;
     }
 
     @Override
@@ -27,6 +37,7 @@ public class DownloadControlPlanReply extends Event {
         for (ChunkLocation chunkLocation : chunkLocationList) {
             marshallBytes(chunkLocation.getBytes());
         }
+        marshallString(filename);
     }
 
     @Override
@@ -37,11 +48,12 @@ public class DownloadControlPlanReply extends Event {
             ChunkLocation chunkLocation = new ChunkLocation(unmarshallBytes());
             chunkLocationList.add(chunkLocation);
         }
+        this.filename = unmarshallString();
     }
 
     @Override
     public String toString() {
-        String rtn = "{\n";
+        String rtn = filename + ": {\n";
         for (ChunkLocation chunkLocation : chunkLocationList) {
             rtn += "\t" + chunkLocation + "\n";
         }

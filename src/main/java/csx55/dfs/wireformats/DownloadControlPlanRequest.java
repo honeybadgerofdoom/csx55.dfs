@@ -7,7 +7,7 @@ public class DownloadControlPlanRequest extends Event {
     private String filename;
 
     public DownloadControlPlanRequest(String filename) {
-        super(Protocol.DOWNLOAD_CONTROL_PLAN_REQUEST);
+        super(Protocol.DOWNLOAD_CONTROL_PLANE_REQUEST);
         this.filename = filename;
     }
 

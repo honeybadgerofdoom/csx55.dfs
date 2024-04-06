@@ -3,8 +3,6 @@ package csx55.dfs.replication;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +14,7 @@ import csx55.dfs.transport.TCPSender;
 import csx55.dfs.util.ChunkLocation;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.ChunkServerManager;
+import csx55.dfs.util.Configs;
 import csx55.dfs.wireformats.*;
 
 
@@ -79,7 +78,7 @@ public class Controller implements Node {
             case Protocol.HEARTBEAT:
                 handleHeartbeat((Heartbeat) event);
                 break;
-            case Protocol.DOWNLOAD_CONTROL_PLAN_REQUEST:
+            case Protocol.DOWNLOAD_CONTROL_PLANE_REQUEST:
                 handleDownloadRequest((DownloadControlPlanRequest) event, socket);
                 break;
             default:
@@ -92,16 +91,9 @@ public class Controller implements Node {
     Handle a download file request
      */
     private void handleDownloadRequest(DownloadControlPlanRequest downloadControlPlanRequest, Socket socket) {
-        System.out.println(downloadControlPlanRequest);
-
-        String filepath = downloadControlPlanRequest.getFilename();
-        int index = filepath.lastIndexOf("/");
-        if (index >= 0) {
-            filepath = filepath.substring(index + 1);
-        }
-
-        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(filepath);
-        DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply(chunkLocationList);
+        String filename = Configs.filenameFromPath(downloadControlPlanRequest.getFilename());
+        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(filename);
+        DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply(chunkLocationList, downloadControlPlanRequest.getFilename());
         // FIXME If its empty, we don't have that file. Print a message to the console!
         try {
             TCPSender sender = new TCPSender(socket);
