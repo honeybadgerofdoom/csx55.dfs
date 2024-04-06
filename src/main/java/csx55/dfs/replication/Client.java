@@ -65,7 +65,6 @@ public class Client implements Node {
     Handle download data plane reply
      */
     private void handleDownloadDataPlaneReply(DownloadDataPlaneReply downloadDataPlaneReply) {
-        System.out.println(downloadDataPlaneReply);
         downloadThreadMap.get(downloadDataPlaneReply.getFilename()).addChunk(downloadDataPlaneReply);
     }
 
@@ -74,7 +73,11 @@ public class Client implements Node {
     Handle Download Control Plane reply
      */
     private void handleDownloadControlPlanReply(DownloadControlPlaneReply downloadControlPlaneReply) {
-        FileDownloadThread fileDownloadThread = new FileDownloadThread(downloadControlPlaneReply.getNewFileName(), downloadControlPlaneReply.getChunkLocationList().size());
+        FileDownloadThread fileDownloadThread =
+                new FileDownloadThread(
+                        downloadControlPlaneReply.getNewFileName(),
+                        downloadControlPlaneReply.getChunkLocationList().size()
+                );
         Thread dlThread = new Thread(fileDownloadThread);
         dlThread.start();
         downloadThreadMap.put(downloadControlPlaneReply.getFilename(), fileDownloadThread);

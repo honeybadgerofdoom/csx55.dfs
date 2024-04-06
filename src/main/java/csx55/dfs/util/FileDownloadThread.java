@@ -11,6 +11,8 @@ public class FileDownloadThread implements Runnable {
     private final String filepath;
     private final int numberOfChunks;
     private final DownloadDataPlaneReply[] chunks;
+    private int currentNumberOfChunksGathered = 0;
+    private volatile boolean waitingForChunks = true;
 
     public FileDownloadThread(String filepath, int numberOfChunks) {
         this.filepath = filepath;
@@ -20,29 +22,30 @@ public class FileDownloadThread implements Runnable {
 
     @Override
     public void run() {
-        while (chunks.length < numberOfChunks) { }
+        while (waitingForChunks) { }
         writeFile();
     }
 
     private void writeFile() {
-        byte[] bytes = new byte[numberOfChunks * Configs.CHUNK_SIZE];
-        for (int i = 0; i < numberOfChunks; i++) {
-            DownloadDataPlaneReply downloadDataPlaneReply = chunks[i];
-            for (int j = 0; j < Configs.CHUNK_SIZE; j++) {
-                int idx = (i + Configs.CHUNK_SIZE) + j;
-                bytes[idx] = downloadDataPlaneReply.getChunkBytes()[j];
-            }
-        }
+        System.out.println("All chunks gathered, writing to file '" + filepath + "'");
         File outputFile = new File(filepath);
+
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-            outputStream.write(bytes);
+            for (int i = 0; i < numberOfChunks; i++) {
+                DownloadDataPlaneReply downloadDataPlaneReply = chunks[i];
+                outputStream.write(downloadDataPlaneReply.getChunkBytes());
+            }
         } catch (IOException e) {
             System.err.println("Failed to write file to disc " + e);
         }
     }
 
-    public void addChunk(DownloadDataPlaneReply downloadDataPlaneReply) {
+    public synchronized void addChunk(DownloadDataPlaneReply downloadDataPlaneReply) {
         chunks[downloadDataPlaneReply.getSequenceNumber() - 1] = downloadDataPlaneReply;
+        currentNumberOfChunksGathered++;
+        System.out.println("(" + currentNumberOfChunksGathered + "/" + numberOfChunks + ")");
+        if (currentNumberOfChunksGathered == numberOfChunks) waitingForChunks = false;
+        System.out.println("Waiting: " + waitingForChunks);
     }
 
 }
