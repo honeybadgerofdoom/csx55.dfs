@@ -163,7 +163,7 @@ public class Client implements Node {
     Upload a file
      */
     public void upload(String source, String destination) {
-        destination = formatDestination(destination);
+        destination = formatInput(destination);
         byte[] file = getFileAsBytes(source);
         if (file != null) {
             int numberOfChunks = file.length / Configs.CHUNK_SIZE;  // Find total number of chunks
@@ -182,10 +182,11 @@ public class Client implements Node {
     /*
     Format the destination filepath so it can start with / or not
      */
-    private String formatDestination(String path) {
-        String pathOnly = Configs.pathFromPathAndName(path);
-        if (pathOnly.equals(path)) return path;  // It's just a filename, no path
-        if (path.charAt(0) != '/') {  // Doesn't start with a '/', need to add that
+    private String formatInput(String path) {
+        if (path.charAt(0) == '.') {
+            System.err.println("This path should not start with a '.'");
+        }
+        if (path.charAt(0) != '/') {  // Doesn't start with a '/', just add that
             char[] str = new char[path.length() + 1];
             str[0] = '/';
             for (int i = 0; i < path.length(); i++) {
@@ -222,8 +223,9 @@ public class Client implements Node {
     /*
     Download a file
      */
-    public void download(String filepath, String newFileName) {
-        DownloadControlPlaneRequest downloadControlPlaneRequest = new DownloadControlPlaneRequest(filepath, newFileName);
+    public void download(String source, String destination) {
+        source = formatInput(source);
+        DownloadControlPlaneRequest downloadControlPlaneRequest = new DownloadControlPlaneRequest(source, destination);
         sendToController(downloadControlPlaneRequest);
     }
 
