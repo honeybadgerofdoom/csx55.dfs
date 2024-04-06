@@ -1,59 +1,39 @@
 package csx55.dfs.util;
 
+import csx55.dfs.wireformats.Event;
+
 import java.io.*;
 
 
 /*
 Data container for chunk server ip/port
  */
-public class ChunkServerInfo {
+public class ChunkServerInfo extends Event {
 
-    private final String ipAddress;
-    private final int portNumber;
-
-    public ChunkServerInfo(String ipAddress, int portNumber) {
-        this.ipAddress = ipAddress;
-        this.portNumber = portNumber;
-    }
+    private String ipAddress;
+    private int portNumber;
 
     public ChunkServerInfo(ChunkServerProxy chunkServerProxy) {
+        super(-1);
         String[] parts = chunkServerProxy.getId().split(":");
         this.ipAddress = parts[0];
         this.portNumber = Integer.parseInt(parts[1]);
     }
 
-    public ChunkServerInfo(byte[] bytes) throws IOException {
-        ByteArrayInputStream bArrayInputStream = new ByteArrayInputStream(bytes);
-        DataInputStream din = new DataInputStream(new BufferedInputStream(bArrayInputStream));
-
-        int elementLength = din.readInt();
-        byte[] ipBytes = new byte[elementLength];
-        din.readFully(ipBytes);
-        this.ipAddress = new String(ipBytes);
-
-        this.portNumber = din.readInt();
-
-        bArrayInputStream.close();
-        din.close();
+    @Override
+    protected void marshall() throws IOException {
+        marshallString(ipAddress);
+        dataOutputStream.writeInt(portNumber);
     }
 
-    public byte[] getBytes() throws IOException {
-        byte[] marshalledBytes = null;
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
+    @Override
+    protected void unmarshall() throws IOException {
+        this.ipAddress = unmarshallString();
+        this.portNumber = dataInputStream.readInt();
+    }
 
-        byte[] bytes = ipAddress.getBytes();
-        int elementLength = bytes.length;
-        dout.writeInt(elementLength);
-        dout.write(bytes);
-
-        dout.writeInt(portNumber);
-
-        dout.flush();
-        marshalledBytes = baOutputStream.toByteArray();
-        baOutputStream.close();
-        dout.close();
-        return marshalledBytes;
+    public ChunkServerInfo(byte[] bytes) throws IOException {
+        super(bytes);
     }
 
     public String getIpAddress() {

@@ -17,7 +17,7 @@ public class ChunkDelivery extends Event {
     public ChunkDelivery(LocationsForChunkReply locationsForChunkReply) {
         super(Protocol.CHUNK_DELIVERY);
         this.chunkBytes = locationsForChunkReply.getChunk();
-        this.filepath = locationsForChunkReply.getFilepath();
+        this.filepath = locationsForChunkReply.getDestination();
         this.sequenceNumber = locationsForChunkReply.getSequenceNumber();
         this.chunkServerInfoList = locationsForChunkReply.getLocations();
         this.numberOfChunkServers = chunkServerInfoList.size();

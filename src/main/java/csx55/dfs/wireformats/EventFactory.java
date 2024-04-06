@@ -39,10 +39,14 @@ public class EventFactory {
                 return new PrintChunks(bytes);
             case Protocol.HEARTBEAT:
                 return new Heartbeat(bytes);
-            case Protocol.DOWNLOAD_CONTROL_PLAN_REQUEST:
-                return new DownloadControlPlanRequest(bytes);
-            case Protocol.DOWNLOAD_CONTROL_PLAN_REPLY:
-                return new DownloadControlPlanReply(bytes);
+            case Protocol.DOWNLOAD_CONTROL_PLANE_REQUEST:
+                return new DownloadControlPlaneRequest(bytes);
+            case Protocol.DOWNLOAD_CONTROL_PLANE_REPLY:
+                return new DownloadControlPlaneReply(bytes);
+            case Protocol.DOWNLOAD_DATA_PLANE_REQUEST:
+                return new DownloadDataPlaneRequest(bytes);
+            case Protocol.DOWNLOAD_DATA_PLANE_REPLY:
+                return new DownloadDataPlaneReply(bytes);
             case Protocol.POKE:
                 return new Poke(bytes);
             default:

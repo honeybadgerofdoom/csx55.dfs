@@ -45,9 +45,9 @@ public class ChunkServerProxy {
     /*
     Gets all chunks of a given file
      */
-    public void getFileChunks(String filename, Set<ChunkLocation> fileChunks) {
+    public void getFileChunks(String filename, String path, Set<ChunkLocation> fileChunks) {
         for (ChunkMetadata chunkMetadata : chunkList) {
-            if (chunkMetadata.getFilename().equals(filename)) {
+            if (chunkMetadata.getFilename().equals(filename) && chunkMetadata.getPath().equals(path)) {
                 ChunkLocation chunkLocation = new ChunkLocation(id, chunkMetadata.getSequenceNumber());
                 fileChunks.add(chunkLocation);
             }

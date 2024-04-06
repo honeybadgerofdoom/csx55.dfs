@@ -6,19 +6,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DownloadControlPlanReply extends Event {
+public class DownloadControlPlaneReply extends Event {
 
     private int numberOfChunks;
     private List<ChunkLocation> chunkLocationList;
+    private String filename;
+    private String newFileName;
 
-    public DownloadControlPlanReply(List<ChunkLocation> chunkLocationList) {
-        super(Protocol.DOWNLOAD_CONTROL_PLAN_REPLY);
+    public DownloadControlPlaneReply(List<ChunkLocation> chunkLocationList, String filename, String newFileName) {
+        super(Protocol.DOWNLOAD_CONTROL_PLANE_REPLY);
         this.numberOfChunks = chunkLocationList.size();
         this.chunkLocationList = chunkLocationList;
+        this.filename = filename;
+        this.newFileName = newFileName;
     }
 
-    public DownloadControlPlanReply(byte[] bytes) throws IOException {
+    public DownloadControlPlaneReply(byte[] bytes) throws IOException {
         super(bytes);
+    }
+
+    public List<ChunkLocation> getChunkLocationList() {
+        return chunkLocationList;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public String getNewFileName() {
+        return newFileName;
     }
 
     @Override
@@ -27,6 +43,8 @@ public class DownloadControlPlanReply extends Event {
         for (ChunkLocation chunkLocation : chunkLocationList) {
             marshallBytes(chunkLocation.getBytes());
         }
+        marshallString(filename);
+        marshallString(newFileName);
     }
 
     @Override
@@ -37,11 +55,13 @@ public class DownloadControlPlanReply extends Event {
             ChunkLocation chunkLocation = new ChunkLocation(unmarshallBytes());
             chunkLocationList.add(chunkLocation);
         }
+        this.filename = unmarshallString();
+        this.newFileName = unmarshallString();
     }
 
     @Override
     public String toString() {
-        String rtn = "{\n";
+        String rtn = filename + ": {\n";
         for (ChunkLocation chunkLocation : chunkLocationList) {
             rtn += "\t" + chunkLocation + "\n";
         }

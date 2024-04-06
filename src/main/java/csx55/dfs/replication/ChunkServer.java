@@ -148,6 +148,9 @@ public class ChunkServer implements Node {
                 case Protocol.CHUNK_DELIVERY:
                     handleChunkDelivery((ChunkDelivery) event);
                     break;
+                case Protocol.DOWNLOAD_DATA_PLANE_REQUEST:
+                    handleDownloadRequest((DownloadDataPlaneRequest) event, socket);
+                    break;
                 case Protocol.PRINT_CHUNKS:
                     chunkManager.printChunks();
                     break;
@@ -157,6 +160,32 @@ public class ChunkServer implements Node {
                 default:
                     System.out.println("onEvent couldn't handle event type " + type);
             }
+        }
+    }
+
+
+    /*
+    Handle request for chunk download
+     */
+    private synchronized void handleDownloadRequest(DownloadDataPlaneRequest downloadDataPlaneRequest, Socket socket) {
+        byte[] chunkBytes = chunkManager.retrieveChunk(downloadDataPlaneRequest.getFilename(), downloadDataPlaneRequest.getSequenceNumber());
+        if (chunkBytes != null) {
+            DownloadDataPlaneReply downloadDataPlaneReply =
+                    new DownloadDataPlaneReply(
+                            chunkBytes,
+                            downloadDataPlaneRequest.getFilename(),
+                            downloadDataPlaneRequest.getSequenceNumber(),
+                            downloadDataPlaneRequest.getNumberOfChunks()
+                    );
+            try {
+                TCPSender sender = new TCPSender(socket);
+                sender.sendData(downloadDataPlaneReply.getBytes());
+            } catch (IOException e) {
+                System.err.println("Failed to send DownloadDataPlaneReply " + e);
+            }
+        }
+        else {
+            System.err.println("Failed to retrieve chunk " + downloadDataPlaneRequest);
         }
     }
 

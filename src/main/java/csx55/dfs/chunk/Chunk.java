@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.util.Arrays;
 
 /*
@@ -44,7 +43,7 @@ public class Chunk {
             this.path = "";
             this.filename = filepath;
         }
-        this.chunkMetadata = new ChunkMetadata(chunkDelivery.getSequenceNumber(), filename);  // Metadata for this chunk
+        this.chunkMetadata = new ChunkMetadata(chunkDelivery.getSequenceNumber(), filename, path);  // Metadata for this chunk
         validateBytesOnStore(chunkDelivery.getChunkBytes());
         writeToDisk(chunkDelivery.getChunkBytes());
     }
@@ -74,7 +73,7 @@ public class Chunk {
      */
     private boolean chunkIsValid() {
         // ToDo Check the checksums for every slice of the chunk
-        return false;
+        return true;
     }
 
 
@@ -83,8 +82,18 @@ public class Chunk {
     If valid, return them
     Else, return null and contact the Controller b/c block was corrupted
      */
-    public byte[] getBytes() {
-        // ToDo Read the bytes from disk, call chunkIsValid()
+    public byte[] getChunkBytes() {
+        try {
+            byte[] chunk = Files.readAllBytes(Paths.get(getWholePath()));
+            if (chunkIsValid()) {
+                return chunk;
+            }
+            else {
+                // ToDo Send message to controller for chunk repair
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to read file from disc " + e);
+        }
         return null;
     }
 
@@ -93,7 +102,7 @@ public class Chunk {
         Write a byte[] to local storage
          */
     private void writeToDisk(byte[] bytes) {
-        File outputFile = new File(root + path + filename + "_" + chunkMetadata.getSequenceNumber());
+        File outputFile = new File(getWholePath());
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(bytes);
         } catch (IOException e) {
@@ -101,13 +110,20 @@ public class Chunk {
         }
     }
 
-
     public ChunkMetadata getChunkMetadata() {
         return chunkMetadata;
     }
 
     public String getFilename() {
         return filename;
+    }
+
+    private String getWholePath() {
+        return root + path + filename + "_" + chunkMetadata.getSequenceNumber();
+    }
+
+    public boolean isTarget(String filename, int sequenceNumber) {
+        return filename.equals(path + this.filename) && sequenceNumber == chunkMetadata.getSequenceNumber();
     }
 
     public String getChecksumStrings() {

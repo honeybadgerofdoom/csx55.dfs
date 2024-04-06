@@ -47,10 +47,10 @@ public class ChunkServerManager {
     /*
     Gets all chunks for a given file
      */
-    public List<ChunkLocation> getChunks(String filename) {
+    public List<ChunkLocation> getChunks(String filename, String path) {
         Set<ChunkLocation> chunkLocationList = new HashSet<>();
         for (ChunkServerProxy chunkServerProxy : chunkServers) {
-            chunkServerProxy.getFileChunks(filename, chunkLocationList);
+            chunkServerProxy.getFileChunks(filename, path, chunkLocationList);
         }
         return new ArrayList<>(chunkLocationList);
     }
