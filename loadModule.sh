@@ -1,1 +1,0 @@
-module purge && module load courses/cs555

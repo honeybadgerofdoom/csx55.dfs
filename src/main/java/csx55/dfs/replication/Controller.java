@@ -124,7 +124,8 @@ public class Controller implements Node {
      */
     private void handleLocationsForChunkRequest(LocationsForChunkRequest locationsForChunkRequest, Socket socket) {
         Set<ChunkServerInfo> locations = chunkServerManager.findLocationsForChunks();
-        LocationsForChunkReply locationsForChunkReply = new LocationsForChunkReply(new ArrayList<>(locations), locationsForChunkRequest);
+        LocationsForChunkReply locationsForChunkReply =
+                new LocationsForChunkReply(new ArrayList<>(locations), locationsForChunkRequest);
         try {
             TCPSender sender = new TCPSender(socket);
             sender.sendData(locationsForChunkReply.getBytes());

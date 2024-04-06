@@ -162,8 +162,8 @@ public class Client implements Node {
     /*
     Upload a file
      */
-    public void upload(String filepath) {
-        byte[] file = getFileAsBytes(filepath);
+    public void upload(String source, String destination) {
+        byte[] file = getFileAsBytes(source);
         if (file != null) {
             int numberOfChunks = file.length / Configs.CHUNK_SIZE;  // Find total number of chunks
             if (file.length % Configs.CHUNK_SIZE > 0) numberOfChunks++;  // Increment if we have a chunk w/ leftover
@@ -172,7 +172,7 @@ public class Client implements Node {
                 int endIndex = (i + 1) * Configs.CHUNK_SIZE;
                 byte[] chunk = Arrays.copyOfRange(file, startIndex, endIndex);  // Build a chunk
                 int sequenceNumber = i + 1;
-                sendLocationsForChunkRequest(chunk, sequenceNumber, filepath);  // Send the request for this chunk
+                sendLocationsForChunkRequest(chunk, sequenceNumber, source, destination);  // Send the request for this chunk
             }
         }
     }
@@ -181,8 +181,8 @@ public class Client implements Node {
     /*
     Send LocationsForChunkRequest to Controller
      */
-    private void sendLocationsForChunkRequest(byte[] chunk, int sequenceNumber, String filepath) {
-        LocationsForChunkRequest locationsForChunkRequest = new LocationsForChunkRequest(sequenceNumber, chunk, filepath);  // Build event
+    private void sendLocationsForChunkRequest(byte[] chunk, int sequenceNumber, String source, String destination) {
+        LocationsForChunkRequest locationsForChunkRequest = new LocationsForChunkRequest(sequenceNumber, chunk, source, destination);  // Build event
         sendToController(locationsForChunkRequest);  // Send it to the Controller
     }
 

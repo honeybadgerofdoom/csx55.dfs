@@ -39,19 +39,20 @@ public class ClientCLIManager implements Runnable {
         String command = parsedInput[0];
         switch(command) {
             case "upload":
-                if (parsedInput.length == 2) {
-                    String filepath = parsedInput[1];
-                    client.upload(filepath);
+                if (parsedInput.length == 3) {
+                    String source = parsedInput[1];
+                    String destination = parsedInput[2];
+                    client.upload(source, destination);
                 }
-                else System.err.println("Invalid usage. Please provide a file path. EX: upload desktop/input/test.txt");
+                else System.err.println("Invalid usage. Please provide a source and destination. EX: upload /desktop/input/test.txt /desktop/downloads/test.txt");
                 break;
             case "download":
                 if (parsedInput.length == 3) {
-                    String filepath = parsedInput[1];
-                    String newFileName = parsedInput[2];
-                    client.download(filepath, newFileName);
+                    String source = parsedInput[1];
+                    String destination = parsedInput[2];
+                    client.download(source, destination);
                 }
-                else System.err.println("Invalid usage. Please provide a file path and new file name. EX: upload desktop/input/test.txt test.txt");
+                else System.err.println("Invalid usage. Please provide a source and destination. EX: upload /desktop/input/test.txt /desktop/downloads/test.txt");
                 break;
             default:
                 System.out.println("Invalid CLI Input: " + input);

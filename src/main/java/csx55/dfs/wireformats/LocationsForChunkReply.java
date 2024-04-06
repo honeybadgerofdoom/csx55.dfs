@@ -13,6 +13,7 @@ public class LocationsForChunkReply extends Event {
     private byte[] chunk;
     private int sequenceNumber;
     private String filepath;
+    private String destination;
 
     public LocationsForChunkReply(List<ChunkServerInfo> locations, LocationsForChunkRequest locationsForChunkRequest) {
         super(Protocol.LOCATIONS_FOR_CHUNK_REPLY);
@@ -20,6 +21,7 @@ public class LocationsForChunkReply extends Event {
         this.chunk = locationsForChunkRequest.getChunk();
         this.sequenceNumber = locationsForChunkRequest.getSequenceNumber();
         this.filepath = locationsForChunkRequest.getFilepath();
+        this.destination = locationsForChunkRequest.getDestination();
     }
 
     public LocationsForChunkReply(byte[] bytes) throws IOException {
@@ -42,6 +44,10 @@ public class LocationsForChunkReply extends Event {
         return filepath;
     }
 
+    public String getDestination() {
+        return destination;
+    }
+
     @Override
     protected void marshall() throws IOException {
         for (ChunkServerInfo chunkServerInfo : locations) {
@@ -50,6 +56,7 @@ public class LocationsForChunkReply extends Event {
         marshallBytes(chunk);
         dataOutputStream.writeInt(sequenceNumber);
         marshallString(filepath);
+        marshallString(destination);
     }
 
     @Override
@@ -61,6 +68,7 @@ public class LocationsForChunkReply extends Event {
         this.chunk = unmarshallBytes();
         this.sequenceNumber = dataInputStream.readInt();
         this.filepath = unmarshallString();
+        this.destination = unmarshallString();
     }
 
     @Override
