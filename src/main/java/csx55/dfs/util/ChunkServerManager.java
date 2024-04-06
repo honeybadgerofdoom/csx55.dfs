@@ -52,8 +52,7 @@ public class ChunkServerManager {
         for (ChunkServerProxy chunkServerProxy : chunkServers) {
             chunkServerProxy.getFileChunks(filename, chunkLocationList);
         }
-        List<ChunkLocation> sorted = new ArrayList<>(chunkLocationList);
-        return sorted;
+        return new ArrayList<>(chunkLocationList);
     }
 
 
