@@ -163,6 +163,7 @@ public class Client implements Node {
     Upload a file
      */
     public void upload(String source, String destination) {
+        destination = formatDestination(destination);
         byte[] file = getFileAsBytes(source);
         if (file != null) {
             int numberOfChunks = file.length / Configs.CHUNK_SIZE;  // Find total number of chunks
@@ -175,6 +176,24 @@ public class Client implements Node {
                 sendLocationsForChunkRequest(chunk, sequenceNumber, source, destination);  // Send the request for this chunk
             }
         }
+    }
+
+
+    /*
+    Format the destination filepath so it can start with / or not
+     */
+    private String formatDestination(String path) {
+        String pathOnly = Configs.pathFromPathAndName(path);
+        if (pathOnly.equals(path)) return path;  // It's just a filename, no path
+        if (path.charAt(0) != '/') {  // Doesn't start with a '/', need to add that
+            char[] str = new char[path.length() + 1];
+            str[0] = '/';
+            for (int i = 0; i < path.length(); i++) {
+                str[i+1] = path.charAt(i);
+            }
+            path = new String(str);
+        }
+        return path;
     }
 
 

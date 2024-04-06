@@ -1,7 +1,7 @@
 # Inputs
 
 ## Client Inputs
-upload /s/chopin/l/grad/asterix/CS555/csx55.dfs/inputFilesForTesting/hamlet.txt /taters/hamlet.txt
+upload /s/chopin/l/grad/asterix/CS555/csx55.dfs/inputFilesForTesting/hamlet.txt hamlet.txt
 download /hamlet.txt /s/chopin/l/grad/asterix/CS555/csx55.dfs/downloaded/hamlet.txt
 
 upload /s/chopin/l/grad/asterix/CS555/csx55.dfs/inputFilesForTesting/bigPhoto.jpg /bigPhoto.jpg
