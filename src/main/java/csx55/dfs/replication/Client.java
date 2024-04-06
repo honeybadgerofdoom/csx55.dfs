@@ -41,9 +41,20 @@ public class Client implements Node {
             case Protocol.LOCATIONS_FOR_CHUNK_REPLY:
                 handleLocationsForChunkReply((LocationsForChunkReply) event);
                 break;
+            case Protocol.DOWNLOAD_CONTROL_PLAN_REPLY:
+                handleDownloadControlPlanReply((DownloadControlPlanReply) event);
+                break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
         }
+    }
+
+
+    /*
+    Handle Download Control Plane reply
+     */
+    public void handleDownloadControlPlanReply(DownloadControlPlanReply downloadControlPlanReply) {
+        System.out.println(downloadControlPlanReply);
     }
 
 
@@ -145,7 +156,8 @@ public class Client implements Node {
     Download a file
      */
     public void download(String filepath) {
-        System.out.println("Implement Download: " + filepath);
+        DownloadControlPlanRequest downloadControlPlanRequest = new DownloadControlPlanRequest(filepath);
+        sendToController(downloadControlPlanRequest);
     }
 
 

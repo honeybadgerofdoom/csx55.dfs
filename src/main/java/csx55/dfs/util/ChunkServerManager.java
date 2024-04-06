@@ -45,6 +45,18 @@ public class ChunkServerManager {
 
 
     /*
+    Gets all chunks for a given file
+     */
+    public List<ChunkLocation> getChunks(String filename) {
+        Set<ChunkLocation> chunkLocationList = new HashSet<>();
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            chunkServerProxy.getFileChunks(filename, chunkLocationList);
+        }
+        return new ArrayList<>(chunkLocationList);
+    }
+
+
+    /*
     Get the right ChunkServerProxy reference
      */
     private ChunkServerProxy getChunkServerProxyById(String id) {
@@ -115,10 +127,8 @@ public class ChunkServerManager {
         tableString += String.format("| %-17s | %17s |", "ID", "Space Left") + "\n";
         tableString += tableLine + "\n";
 
-        synchronized (chunkServers) {
-            for (ChunkServerProxy chunkServerProxy : chunkServers) {
-                tableString += chunkServerProxy + "\n";
-            }
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            tableString += chunkServerProxy + "\n";
         }
 
         tableString += tableLine;

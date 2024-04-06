@@ -1,5 +1,7 @@
 package csx55.dfs.chunk;
 
+import csx55.dfs.util.ChunkServerInfo;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.io.*;
@@ -8,7 +10,7 @@ import java.io.*;
 /*
 Maintain metadata associated with a Chunk
  */
-public class ChunkMetadata {
+public class ChunkMetadata implements Comparable<ChunkMetadata> {
 
     private final DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private int versionNumber, sequenceNumber;
@@ -89,6 +91,28 @@ public class ChunkMetadata {
     @Override
     public String toString() {
         return "'" + filename +  "': { Sequence Number: " + sequenceNumber + " | Version Number: " + versionNumber + " | Timestamp: '" + timestamp + "' }";
+    }
+
+    @Override
+    public int compareTo(ChunkMetadata chunkMetadata) {
+        return Integer.compare(chunkMetadata.getSequenceNumber(), this.sequenceNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return (filename + sequenceNumber).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ChunkMetadata other = (ChunkMetadata) obj;
+        return this.filename.equals(other.getFilename()) && this.sequenceNumber == other.getSequenceNumber();
     }
 
 }

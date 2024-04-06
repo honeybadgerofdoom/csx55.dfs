@@ -3,13 +3,17 @@ package csx55.dfs.replication;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.ControllerCLIManager;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.transport.TCPSender;
+import csx55.dfs.util.ChunkLocation;
 import csx55.dfs.util.ChunkServerInfo;
 import csx55.dfs.util.ChunkServerManager;
 import csx55.dfs.wireformats.*;
@@ -75,8 +79,35 @@ public class Controller implements Node {
             case Protocol.HEARTBEAT:
                 handleHeartbeat((Heartbeat) event);
                 break;
+            case Protocol.DOWNLOAD_CONTROL_PLAN_REQUEST:
+                handleDownloadRequest((DownloadControlPlanRequest) event, socket);
+                break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
+        }
+    }
+
+
+    /*
+    Handle a download file request
+     */
+    private void handleDownloadRequest(DownloadControlPlanRequest downloadControlPlanRequest, Socket socket) {
+        System.out.println(downloadControlPlanRequest);
+
+        String filepath = downloadControlPlanRequest.getFilename();
+        int index = filepath.lastIndexOf("/");
+        if (index >= 0) {
+            filepath = filepath.substring(index + 1);
+        }
+
+        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(filepath);
+        DownloadControlPlanReply downloadControlPlanReply = new DownloadControlPlanReply(chunkLocationList);
+        // FIXME If its empty, we don't have that file. Print a message to the console!
+        try {
+            TCPSender sender = new TCPSender(socket);
+            sender.sendData(downloadControlPlanReply.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send DownloadControlReply back to client " + e);
         }
     }
 
