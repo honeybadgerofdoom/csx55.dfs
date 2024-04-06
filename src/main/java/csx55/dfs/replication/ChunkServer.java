@@ -167,10 +167,16 @@ public class ChunkServer implements Node {
     /*
     Handle request for chunk download
      */
-    private void handleDownloadRequest(DownloadDataPlaneRequest downloadDataPlaneRequest, Socket socket) {
+    private synchronized void handleDownloadRequest(DownloadDataPlaneRequest downloadDataPlaneRequest, Socket socket) {
         byte[] chunkBytes = chunkManager.retrieveChunk(downloadDataPlaneRequest.getFilename(), downloadDataPlaneRequest.getSequenceNumber());
         if (chunkBytes != null) {
-            DownloadDataPlaneReply downloadDataPlaneReply = new DownloadDataPlaneReply(chunkBytes, downloadDataPlaneRequest.getFilename(), downloadDataPlaneRequest.getSequenceNumber());
+            DownloadDataPlaneReply downloadDataPlaneReply =
+                    new DownloadDataPlaneReply(
+                            chunkBytes,
+                            downloadDataPlaneRequest.getFilename(),
+                            downloadDataPlaneRequest.getSequenceNumber(),
+                            downloadDataPlaneRequest.getNumberOfChunks()
+                    );
             try {
                 TCPSender sender = new TCPSender(socket);
                 sender.sendData(downloadDataPlaneReply.getBytes());

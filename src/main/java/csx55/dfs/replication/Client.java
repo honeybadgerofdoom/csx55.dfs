@@ -15,6 +15,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /*
@@ -27,10 +29,12 @@ public class Client implements Node {
     private final String controllerIpAddress;
     private final int controllerPortNumber;
     private Socket socketToController;
+    private final Map<String, Socket> socketMap;
 
     public Client(String controllerIpAddress, int controllerPortNumber) {
         this.controllerIpAddress = controllerIpAddress;
         this.controllerPortNumber = controllerPortNumber;
+        this.socketMap = new HashMap<>();
     }
 
 
@@ -68,9 +72,21 @@ public class Client implements Node {
     private void handleDownloadControlPlanReply(DownloadControlPlanReply downloadControlPlanReply) {
         for (ChunkLocation chunkLocation : downloadControlPlanReply.getChunkLocationList()) {
             try {
-                Socket socket = new Socket(chunkLocation.getIpAddress(), chunkLocation.getPortNumber());
-                TCPSender sender = new TCPSender(socket);
-                DownloadDataPlaneRequest downloadDataPlaneRequest = new DownloadDataPlaneRequest(downloadControlPlanReply.getFilename(), chunkLocation.getSequenceNumber());
+                String key = chunkLocation.getIpAddress() + ":" + chunkLocation.getPortNumber();
+                if (!socketMap.containsKey(key)) {
+                    Socket socket = new Socket(chunkLocation.getIpAddress(), chunkLocation.getPortNumber());
+                    socketMap.put(key, socket);
+                    TCPReceiverThread tcpReceiverThread = new TCPReceiverThread(this, socket);
+                    Thread thread = new Thread(tcpReceiverThread);
+                    thread.start();
+                }
+                TCPSender sender = new TCPSender(socketMap.get(key));
+                DownloadDataPlaneRequest downloadDataPlaneRequest =
+                        new DownloadDataPlaneRequest(
+                                downloadControlPlanReply.getFilename(),
+                                chunkLocation.getSequenceNumber(),
+                                downloadControlPlanReply.getChunkLocationList().size()
+                        );
                 sender.sendData(downloadDataPlaneRequest.getBytes());
             } catch (IOException e) {
                 System.err.println("Failed to send DownloadDataPlaneRequest to " + chunkLocation + " " + e);
