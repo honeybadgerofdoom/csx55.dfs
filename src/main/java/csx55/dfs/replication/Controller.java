@@ -92,7 +92,8 @@ public class Controller implements Node {
      */
     private void handleDownloadRequest(DownloadControlPlaneRequest downloadControlPlaneRequest, Socket socket) {
         String filename = Configs.filenameFromPath(downloadControlPlaneRequest.getFilename());
-        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(filename);
+        String path = Configs.pathFromPathAndName(downloadControlPlaneRequest.getFilename());
+        List<ChunkLocation> chunkLocationList = chunkServerManager.getChunks(filename, path);
         DownloadControlPlaneReply downloadControlPlaneReply =
                 new DownloadControlPlaneReply(
                         chunkLocationList,

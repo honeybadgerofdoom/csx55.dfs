@@ -1,72 +1,34 @@
 package csx55.dfs.chunk;
 
 import csx55.dfs.util.ChunkServerInfo;
+import csx55.dfs.wireformats.Event;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.io.*;
+import java.util.ArrayList;
 
 
 /*
 Maintain metadata associated with a Chunk
  */
-public class ChunkMetadata implements Comparable<ChunkMetadata> {
+public class ChunkMetadata extends Event implements Comparable<ChunkMetadata> {
 
     private final DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private int versionNumber, sequenceNumber;
-    private String timestamp, filename;
+    private String timestamp, filename, path;
 
-    public ChunkMetadata(int sequenceNumber, String filename) {
+    public ChunkMetadata(int sequenceNumber, String filename, String path) {
+        super(-1);
         this.sequenceNumber = sequenceNumber;
         this.filename = filename;
+        this.path = path;
         this.versionNumber = 1;
         this.timestamp = LocalDateTime.now().format((CUSTOM_FORMATTER));
     }
 
     public ChunkMetadata(byte[] bytes) throws IOException {
-        ByteArrayInputStream bArrayInputStream = new ByteArrayInputStream(bytes);
-        DataInputStream din = new DataInputStream(new BufferedInputStream(bArrayInputStream));
-
-        int filenameLength = din.readInt();
-        byte[] filenameBytes = new byte[filenameLength];
-        din.readFully(filenameBytes);
-        this.filename = new String(filenameBytes);
-
-        int timestampLength = din.readInt();
-        byte[] timestampBytes = new byte[timestampLength];
-        din.readFully(timestampBytes);
-        this.timestamp = new String(timestampBytes);
-
-        this.sequenceNumber = din.readInt();
-        this.versionNumber = din.readInt();
-
-        bArrayInputStream.close();
-        din.close();
-    }
-
-    public byte[] getBytes() throws IOException {
-        byte[] marshalledBytes = null;
-        ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
-
-        byte[] filenameBytes = filename.getBytes();
-        int filenameLength = filenameBytes.length;
-        dout.writeInt(filenameLength);
-        dout.write(filenameBytes);
-
-        byte[] timestampBytes = timestamp.getBytes();
-        int timestampLength = timestampBytes.length;
-        dout.writeInt(timestampLength);
-        dout.write(timestampBytes);
-
-        dout.writeInt(sequenceNumber);
-        dout.writeInt(versionNumber);
-
-        dout.flush();
-        marshalledBytes = baOutputStream.toByteArray();
-        baOutputStream.close();
-        dout.close();
-        return marshalledBytes;
+        super(bytes);
     }
 
     public int getVersionNumber() {
@@ -85,12 +47,34 @@ public class ChunkMetadata implements Comparable<ChunkMetadata> {
         return filename;
     }
 
+    public String getPath() {
+        return path;
+    }
+
+    @Override
+    protected void marshall() throws IOException {
+        marshallString(timestamp);
+        marshallString(filename);
+        marshallString(path);
+        dataOutputStream.writeInt(sequenceNumber);
+        dataOutputStream.writeInt(versionNumber);
+    }
+
+    @Override
+    protected void unmarshall() throws IOException {
+        this.timestamp = unmarshallString();
+        this.filename = unmarshallString();
+        this.path = unmarshallString();
+        this.sequenceNumber = dataInputStream.readInt();
+        this.versionNumber = dataInputStream.readInt();
+    }
+
     /*
-    Formats members into readable output
-     */
+        Formats members into readable output
+         */
     @Override
     public String toString() {
-        return "'" + filename +  "': { Sequence Number: " + sequenceNumber + " | Version Number: " + versionNumber + " | Timestamp: '" + timestamp + "' }";
+        return "'" + path + filename +  "': { Sequence Number: " + sequenceNumber + " | Version Number: " + versionNumber + " | Timestamp: '" + timestamp + "' }";
     }
 
     @Override

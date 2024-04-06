@@ -43,7 +43,7 @@ public class Chunk {
             this.path = "";
             this.filename = filepath;
         }
-        this.chunkMetadata = new ChunkMetadata(chunkDelivery.getSequenceNumber(), filename);  // Metadata for this chunk
+        this.chunkMetadata = new ChunkMetadata(chunkDelivery.getSequenceNumber(), filename, path);  // Metadata for this chunk
         validateBytesOnStore(chunkDelivery.getChunkBytes());
         writeToDisk(chunkDelivery.getChunkBytes());
     }
