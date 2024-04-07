@@ -163,6 +163,9 @@ public class ChunkServer implements Node {
                 case Protocol.REPAIR_CHUNK_CONTROL_PLANE_REPLY:
                     handleRepairChunkControlPlaneReply((RepairChunkControlPlaneReply) event);
                     break;
+                case Protocol.REPAIR_CHUNK_DATA_PLANE:
+                    handleRepairChunkDataPlane((RepairChunkDataPlane) event);
+                    break;
                 case Protocol.POKE:
                     handlePoke((Poke) event);
                     break;
@@ -174,24 +177,43 @@ public class ChunkServer implements Node {
 
 
     /*
+    Handle RepairChunkDataPlane
+     */
+    private void handleRepairChunkDataPlane(RepairChunkDataPlane repairChunkDataPlane) {
+        System.out.println(repairChunkDataPlane);
+        /**
+         * ToDo
+         *  - Find the old (corrupted) chunk, delete it, create a new chunk out of this message contents, add it.
+         */
+    }
+
+
+    /*
     Handle RepairChunkControlPlaneReply
      */
     private void handleRepairChunkControlPlaneReply(RepairChunkControlPlaneReply repairChunkControlPlaneReply) {
-        System.out.println(repairChunkControlPlaneReply);
+        System.out.println("Received RepairChunkControlPlaneReply Event | " + repairChunkControlPlaneReply);
         byte[] chunkBytes = chunkManager.retrieveChunk(repairChunkControlPlaneReply.getFilepath(), repairChunkControlPlaneReply.getSequenceNumber());
         NodeProxy clientProxy = repairChunkControlPlaneReply.getClientProxy();
         NodeProxy chunkProxy = repairChunkControlPlaneReply.getChunkServerProxy();
         checkSocketMap(clientProxy);
         checkSocketMap(chunkProxy);
-        // ToDo Send a DownloadDataPlaneReply to the Client
         DownloadDataPlaneReply downloadDataPlaneReply =
                 new DownloadDataPlaneReply(
-                    chunkBytes,
-                    repairChunkControlPlaneReply.getFilepath(),
-                    repairChunkControlPlaneReply.getSequenceNumber(),
-                    0
+                        chunkBytes,
+                        repairChunkControlPlaneReply.getFilepath(),
+                        repairChunkControlPlaneReply.getSequenceNumber(),
+                        1
                 );
+        System.out.println("Sending DownloadDataPlaneReply to Client '" + repairChunkControlPlaneReply.getClientProxy() + "': " + downloadDataPlaneReply);
         sendData(clientProxy.getId(), downloadDataPlaneReply);
+        RepairChunkDataPlane repairChunkDataPlane =
+                new RepairChunkDataPlane(
+                        chunkBytes,
+                        repairChunkControlPlaneReply.getFilepath(),
+                        repairChunkControlPlaneReply.getSequenceNumber()
+                );
+        sendData(chunkProxy.getId(), repairChunkDataPlane);
     }
 
     private void checkSocketMap(NodeProxy nodeProxy) {

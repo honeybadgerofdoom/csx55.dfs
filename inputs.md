@@ -28,6 +28,10 @@ download /dl/testFromDir2.txt /s/chopin/l/grad/asterix/CS555/csx55.dfs/downloade
 upload /s/chopin/l/grad/asterix/CS555/csx55.dfs/inputFilesForTesting/hamlet.txt /dl/testFromDir3.txt
 download /dl/testFromDir3.txt /s/chopin/l/grad/asterix/CS555/csx55.dfs/downloaded/testFromDir3.txt
 
+### Disrupted
+upload /s/chopin/l/grad/asterix/CS555/csx55.dfs/inputFilesForTesting/hamlet.txt DISRUPT3/testFromDir.txt
+download DISRUPT3/testFromDir.txt /s/chopin/l/grad/asterix/CS555/csx55.dfs/downloaded/disrupted.txt
+
 ### Photo
 upload /s/chopin/l/grad/asterix/CS555/csx55.dfs/inputFilesForTesting/bigPhoto.jpg /bigPhoto.jpg
 download bigPhoto.jpg /s/chopin/l/grad/asterix/CS555/csx55.dfs/downloaded/bigPhoto.jpg
