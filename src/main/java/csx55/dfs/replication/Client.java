@@ -4,15 +4,14 @@ import csx55.dfs.cli.ClientCLIManager;
 import csx55.dfs.node.Node;
 import csx55.dfs.transport.TCPReceiverThread;
 import csx55.dfs.transport.TCPSender;
-import csx55.dfs.util.ChunkLocation;
-import csx55.dfs.util.ChunkServerInfo;
-import csx55.dfs.util.Configs;
-import csx55.dfs.util.FileDownloadThread;
+import csx55.dfs.util.*;
 import csx55.dfs.wireformats.*;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -31,13 +30,43 @@ public class Client implements Node {
     private final int controllerPortNumber;
     private Socket socketToController;
     private final Map<String, Socket> socketMap;
-    private final Map<String, FileDownloadThread> downloadThreadMap;
+    private final Map<String, FileDownloadThread> downloadThreadMap;;
+    private String ipAddress;
+    private int portNumber;
+    private String id;
+    private ServerSocket serverSocket;
 
     public Client(String controllerIpAddress, int controllerPortNumber) {
         this.controllerIpAddress = controllerIpAddress;
         this.controllerPortNumber = controllerPortNumber;
         this.socketMap = new HashMap<>();
         this.downloadThreadMap = new HashMap<>();
+    }
+
+    /*
+    Get IP address, store it
+     */
+    private void assignIpAddress() {
+        try {
+            InetAddress addr = InetAddress.getLocalHost();
+            this.ipAddress = addr.getHostName();
+        } catch (UnknownHostException e) {
+            System.err.println("ERROR Failed to get MessagingNode IP Address...\n" + e);
+        }
+    }
+
+
+    /*
+    Get port, initialize ServerSocket
+     */
+    private void assignServerSocketAndPort() {
+        try {
+            this.serverSocket = new ServerSocket(0);
+            this.portNumber = this.serverSocket.getLocalPort();
+            this.id = ipAddress + ":" + portNumber;
+        } catch (IOException e) {
+            System.err.println("ERROR Failed to create ServerSocket...\n" + e);
+        }
     }
 
 
@@ -92,11 +121,13 @@ public class Client implements Node {
                     thread.start();
                 }
                 TCPSender sender = new TCPSender(socketMap.get(key));
+                NodeProxy clientProxy = new NodeProxy(ipAddress, portNumber);
                 DownloadDataPlaneRequest downloadDataPlaneRequest =
                         new DownloadDataPlaneRequest(
                                 downloadControlPlaneReply.getFilename(),
                                 chunkLocation.getSequenceNumber(),
-                                downloadControlPlaneReply.getChunkLocationList().size()
+                                downloadControlPlaneReply.getChunkLocationList().size(),
+                                clientProxy
                         );
                 sender.sendData(downloadDataPlaneRequest.getBytes());
             } catch (IOException e) {
@@ -154,6 +185,8 @@ public class Client implements Node {
     Setup CLI
      */
     public void doWork() {
+        assignIpAddress();
+        assignServerSocketAndPort();
         connectToController();
         manageCLI();
     }
@@ -241,7 +274,7 @@ public class Client implements Node {
 
 
     public ServerSocket getServerSocket() {
-        return null;
+        return this.serverSocket;
     }
 
 

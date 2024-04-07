@@ -1,5 +1,7 @@
 package csx55.dfs.wireformats;
 
+import csx55.dfs.util.NodeProxy;
+
 import java.io.IOException;
 
 public class DownloadDataPlaneRequest extends Event {
@@ -7,12 +9,14 @@ public class DownloadDataPlaneRequest extends Event {
     private String filename;
     private int sequenceNumber;
     private int numberOfChunks;
+    private NodeProxy clientProxy;
 
-    public DownloadDataPlaneRequest(String filename, int sequenceNumber, int numberOfChunks) {
+    public DownloadDataPlaneRequest(String filename, int sequenceNumber, int numberOfChunks, NodeProxy clientProxy) {
         super(Protocol.DOWNLOAD_DATA_PLANE_REQUEST);
         this.filename = filename;
         this.sequenceNumber = sequenceNumber;
         this.numberOfChunks = numberOfChunks;
+        this.clientProxy = clientProxy;
     }
 
     public DownloadDataPlaneRequest(byte[] bytes) throws IOException {
@@ -31,11 +35,16 @@ public class DownloadDataPlaneRequest extends Event {
         return numberOfChunks;
     }
 
+    public NodeProxy getClientProxy() {
+        return clientProxy;
+    }
+
     @Override
     protected void marshall() throws IOException {
         marshallString(filename);
         dataOutputStream.writeInt(sequenceNumber);
         dataOutputStream.writeInt(numberOfChunks);
+        marshallEvent(clientProxy);
     }
 
     @Override
@@ -43,6 +52,7 @@ public class DownloadDataPlaneRequest extends Event {
         this.filename = unmarshallString();
         this.sequenceNumber = dataInputStream.readInt();
         this.numberOfChunks = dataInputStream.readInt();
+        this.clientProxy = new NodeProxy(unmarshallBytes());
     }
 
     @Override

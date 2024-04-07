@@ -48,6 +48,11 @@ public abstract class Event {
         return marshalledBytes;
     }
 
+    protected void marshallEvent(Event event) throws  IOException {
+        byte[] bytes = event.getBytes();
+        marshallBytes(bytes);
+    }
+
     protected void marshallString(String string) throws IOException {
         byte[] bytes = string.getBytes();
         marshallBytes(bytes);

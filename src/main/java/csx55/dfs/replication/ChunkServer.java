@@ -5,6 +5,7 @@ import csx55.dfs.chunk.HeartbeatThread;
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.util.ChunkServerInfo;
+import csx55.dfs.util.NodeProxy;
 import csx55.dfs.wireformats.*;
 import csx55.dfs.transport.TCPReceiverThread;
 import csx55.dfs.transport.TCPSender;
@@ -168,6 +169,9 @@ public class ChunkServer implements Node {
     Handle request for chunk download
      */
     private synchronized void handleDownloadRequest(DownloadDataPlaneRequest downloadDataPlaneRequest, Socket socket) {
+
+        System.out.println(downloadDataPlaneRequest);
+
         byte[] chunkBytes = chunkManager.retrieveChunk(downloadDataPlaneRequest.getFilename(), downloadDataPlaneRequest.getSequenceNumber());
         if (chunkBytes != null) {
             DownloadDataPlaneReply downloadDataPlaneReply =
@@ -185,7 +189,15 @@ public class ChunkServer implements Node {
             }
         }
         else {
-            System.err.println("Failed to retrieve chunk " + downloadDataPlaneRequest);
+            NodeProxy clientProxy = downloadDataPlaneRequest.getClientProxy();
+            NodeProxy chunkServerProxy = new NodeProxy(ipAddress, portNumber);
+            RepairChunkControlPlaneRequest repairChunkControlPlaneRequest = new RepairChunkControlPlaneRequest(
+                    clientProxy,
+                    chunkServerProxy,
+                    downloadDataPlaneRequest.getFilename(),
+                    downloadDataPlaneRequest.getSequenceNumber()
+            );
+            sendToController(repairChunkControlPlaneRequest);
         }
     }
 
@@ -218,6 +230,19 @@ public class ChunkServer implements Node {
                     System.err.println("Failed to forward ChunkDelivery " + e);
                 }
             }
+        }
+    }
+
+
+    /*
+    Send an event to the controller
+     */
+    private void sendToController(Event event) {
+        try {
+            TCPSender sender = new TCPSender(socketToController);
+            sender.sendData(event.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send event to controller " + e);
         }
     }
 

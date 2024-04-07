@@ -47,6 +47,8 @@ public class EventFactory {
                 return new DownloadDataPlaneRequest(bytes);
             case Protocol.DOWNLOAD_DATA_PLANE_REPLY:
                 return new DownloadDataPlaneReply(bytes);
+            case Protocol.REPAIR_CHUNK_CONTROL_PLANE_REQUEST:
+                return new RepairChunkControlPlaneRequest(bytes);
             case Protocol.POKE:
                 return new Poke(bytes);
             default:

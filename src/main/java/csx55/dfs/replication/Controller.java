@@ -81,9 +81,20 @@ public class Controller implements Node {
             case Protocol.DOWNLOAD_CONTROL_PLANE_REQUEST:
                 handleDownloadRequest((DownloadControlPlaneRequest) event, socket);
                 break;
+            case Protocol.REPAIR_CHUNK_CONTROL_PLANE_REQUEST:
+                handleRepairRequest((RepairChunkControlPlaneRequest) event);
+                break;
             default:
                 System.out.println("onEvent trying to process invalid event type: " + event.getType());
         }
+    }
+
+
+    /*
+    Handle repair request
+     */
+    private void handleRepairRequest(RepairChunkControlPlaneRequest repairChunkControlPlaneRequest) {
+        System.out.println(repairChunkControlPlaneRequest);
     }
 
 
