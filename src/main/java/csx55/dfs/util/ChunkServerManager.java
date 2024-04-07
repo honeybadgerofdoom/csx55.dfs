@@ -57,6 +57,20 @@ public class ChunkServerManager {
 
 
     /*
+    Gets one chunk of a specific file, ignoring a given ChunkServer
+     */
+    public ChunkServerProxy getChunk(String filename, String path, int sequenceNumber, NodeProxy serverWithBadChunk) {
+        for (ChunkServerProxy chunkServerProxy : chunkServers) {
+            if (chunkServerProxy.getId().equals(serverWithBadChunk.getId())) continue;
+            if (chunkServerProxy.hasChunk(filename, path, sequenceNumber)) {
+                return chunkServerProxy;
+            }
+        }
+        return null;
+    }
+
+
+    /*
     Get the right ChunkServerProxy reference
      */
     private ChunkServerProxy getChunkServerProxyById(String id) {

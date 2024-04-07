@@ -5,6 +5,7 @@ import csx55.dfs.chunk.HeartbeatThread;
 import csx55.dfs.node.Node;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.util.ChunkServerInfo;
+import csx55.dfs.util.NodeProxy;
 import csx55.dfs.wireformats.*;
 import csx55.dfs.transport.TCPReceiverThread;
 import csx55.dfs.transport.TCPSender;
@@ -13,6 +14,9 @@ import java.net.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 /*
@@ -28,11 +32,13 @@ public class ChunkServer implements Node {
     private int portNumber;
     private String id;
     private final ChunkManager chunkManager;
+    private final ConcurrentMap<String, Socket> socketMap;
 
     public ChunkServer(String controllerIpAddress, int controllerPortNumber) {
         this.controllerIpAddress = controllerIpAddress;
         this.controllerPortNumber = controllerPortNumber;
         this.chunkManager = new ChunkManager();
+        this.socketMap = new ConcurrentHashMap<>();
     }
 
 
@@ -154,12 +160,78 @@ public class ChunkServer implements Node {
                 case Protocol.PRINT_CHUNKS:
                     chunkManager.printChunks();
                     break;
+                case Protocol.REPAIR_CHUNK_CONTROL_PLANE_REPLY:
+                    handleRepairChunkControlPlaneReply((RepairChunkControlPlaneReply) event);
+                    break;
+                case Protocol.REPAIR_CHUNK_DATA_PLANE:
+                    handleRepairChunkDataPlane((RepairChunkDataPlane) event);
+                    break;
                 case Protocol.POKE:
                     handlePoke((Poke) event);
                     break;
                 default:
                     System.out.println("onEvent couldn't handle event type " + type);
             }
+        }
+    }
+
+
+    /*
+    Handle RepairChunkDataPlane
+     */
+    private void handleRepairChunkDataPlane(RepairChunkDataPlane repairChunkDataPlane) {
+        chunkManager.repairChunk(repairChunkDataPlane);
+    }
+
+
+    /*
+    Handle RepairChunkControlPlaneReply
+     */
+    private void handleRepairChunkControlPlaneReply(RepairChunkControlPlaneReply repairChunkControlPlaneReply) {
+        byte[] chunkBytes = chunkManager.retrieveChunk(repairChunkControlPlaneReply.getFilepath(), repairChunkControlPlaneReply.getSequenceNumber());
+        NodeProxy clientProxy = repairChunkControlPlaneReply.getClientProxy();
+        NodeProxy chunkProxy = repairChunkControlPlaneReply.getChunkServerProxy();
+        checkSocketMap(clientProxy);
+        checkSocketMap(chunkProxy);
+        DownloadDataPlaneReply downloadDataPlaneReply =
+                new DownloadDataPlaneReply(
+                        chunkBytes,
+                        repairChunkControlPlaneReply.getFilepath(),
+                        repairChunkControlPlaneReply.getSequenceNumber(),
+                        1
+                );
+        sendData(clientProxy.getId(), downloadDataPlaneReply);
+        RepairChunkDataPlane repairChunkDataPlane =
+                new RepairChunkDataPlane(
+                        chunkBytes,
+                        repairChunkControlPlaneReply.getFilepath(),
+                        repairChunkControlPlaneReply.getSequenceNumber()
+                );
+        sendData(chunkProxy.getId(), repairChunkDataPlane);
+    }
+
+    private void checkSocketMap(NodeProxy nodeProxy) {
+        if (!socketMap.containsKey(nodeProxy.getId())) {
+            addSocketRef(nodeProxy);
+        }
+    }
+
+    private synchronized void sendData(String nodeId, Event event) {
+        try {
+            TCPSender sender = new TCPSender(socketMap.get(nodeId));
+            sender.sendData(event.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send Event to " + nodeId);
+        }
+    }
+
+    private void addSocketRef(NodeProxy nodeProxy) {
+        String id = nodeProxy.getId();
+        try {
+            Socket socket = new Socket(nodeProxy.getIpAddress(), nodeProxy.getPortNumber());
+            socketMap.put(id, socket);
+        } catch (IOException e) {
+            System.err.println("Failed to add socket to socketMap for NodeProxy: " + nodeProxy);
         }
     }
 
@@ -185,7 +257,15 @@ public class ChunkServer implements Node {
             }
         }
         else {
-            System.err.println("Failed to retrieve chunk " + downloadDataPlaneRequest);
+            NodeProxy clientProxy = downloadDataPlaneRequest.getClientProxy();
+            NodeProxy chunkServerProxy = new NodeProxy(ipAddress, portNumber);
+            RepairChunkControlPlaneRequest repairChunkControlPlaneRequest = new RepairChunkControlPlaneRequest(
+                    clientProxy,
+                    chunkServerProxy,
+                    downloadDataPlaneRequest.getFilename(),
+                    downloadDataPlaneRequest.getSequenceNumber()
+            );
+            sendToController(repairChunkControlPlaneRequest);
         }
     }
 
@@ -218,6 +298,19 @@ public class ChunkServer implements Node {
                     System.err.println("Failed to forward ChunkDelivery " + e);
                 }
             }
+        }
+    }
+
+
+    /*
+    Send an event to the controller
+     */
+    private void sendToController(Event event) {
+        try {
+            TCPSender sender = new TCPSender(socketToController);
+            sender.sendData(event.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send event to controller " + e);
         }
     }
 

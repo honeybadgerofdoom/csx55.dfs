@@ -55,7 +55,7 @@ public class DownloadDataPlaneReply extends Event implements Comparable<Download
 
     @Override
     public String toString() {
-        return "Reply with " + chunkBytes.length + " bytes for '" + filename + "', sequence #" + sequenceNumber;
+        return "DownloadDataPlaneReply with " + chunkBytes.length + " bytes for '" + filename + "', sequence #" + sequenceNumber;
     }
 
 

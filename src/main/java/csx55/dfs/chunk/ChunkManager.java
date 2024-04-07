@@ -4,6 +4,7 @@ package csx55.dfs.chunk;
 import csx55.dfs.util.Configs;
 import csx55.dfs.wireformats.ChunkDelivery;
 import csx55.dfs.wireformats.Heartbeat;
+import csx55.dfs.wireformats.RepairChunkDataPlane;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,23 @@ public class ChunkManager {
             }
         }
         return null;
+    }
+
+
+    /*
+    Repair a chunk
+     */
+    public void repairChunk(RepairChunkDataPlane repairChunkDataPlane) {
+        for (Chunk chunk : chunks) {
+            if (chunk.isTarget(repairChunkDataPlane.getFilepath(), repairChunkDataPlane.getSequenceNumber())) {
+                chunk.getChunkMetadata().updateMetadata();
+                chunk.writeToDisk(repairChunkDataPlane.getChunkBytes());
+                String chunkName = repairChunkDataPlane.getFilepath() + "_" + repairChunkDataPlane.getSequenceNumber();
+                System.out.println("Chunk '" + chunkName + "' repaired.");
+                break;
+            }
+        }
+
     }
 
 

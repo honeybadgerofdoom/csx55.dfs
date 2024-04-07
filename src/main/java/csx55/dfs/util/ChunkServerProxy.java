@@ -43,6 +43,18 @@ public class ChunkServerProxy {
 
 
     /*
+    Check if this ChunkServerProxy has a given chunk of a file
+     */
+    public boolean hasChunk(String filename, String path, int sequenceNumber) {
+        ChunkMetadata target = new ChunkMetadata(sequenceNumber, filename, path);
+        for (ChunkMetadata chunkMetadata : chunkList) {
+            if (chunkMetadata.equals(target)) return true;
+        }
+        return false;
+    }
+
+
+    /*
     Gets all chunks of a given file
      */
     public void getFileChunks(String filename, String path, Set<ChunkLocation> fileChunks) {

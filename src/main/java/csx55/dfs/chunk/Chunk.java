@@ -52,18 +52,30 @@ public class Chunk {
     /*
     Validates the bytes before we write them to disk
      */
-    private void validateBytesOnStore(byte[] bytes) {
-        int numberOfSlices = bytes.length / Configs.SLICE_SIZE;  // There should be 8 slices always
-        if (bytes.length % Configs.SLICE_SIZE != 0) {
-            System.err.println(bytes.length % Configs.SLICE_SIZE + " leftover bytes that don't fit into " + numberOfSlices + " slices");
+    private void validateBytesOnStore(byte[] chunk) {
+        Checksum[] checksumArray = getChecksums(chunk);
+        System.arraycopy(checksumArray, 0, checksums, 0, checksumArray.length);
+    }
+
+
+    /*
+    Get
+     */
+    private Checksum[] getChecksums(byte[] chunk) {
+        int numberOfSlices = chunk.length / Configs.SLICE_SIZE;  // There should be 8 slices always
+        if (chunk.length % Configs.SLICE_SIZE != 0) {
+            System.err.println("Detected tampering with file!");
+            return null;
         }
+        Checksum[] checksumArray = new Checksum[numberOfSlices];
         for (int i = 0; i < numberOfSlices; i++) {  // Iterate number of slices times
             int startIndex = i * Configs.SLICE_SIZE;
             int endIndex = (i + 1) * Configs.SLICE_SIZE;
-            byte[] slice = Arrays.copyOfRange(bytes, startIndex, endIndex);  // Build a slice
+            byte[] slice = Arrays.copyOfRange(chunk, startIndex, endIndex);  // Build a slice
             Checksum checksum = new Checksum(slice);
-            checksums[i] = checksum;
+            checksumArray[i] = checksum;
         }
+        return checksumArray;
     }
 
 
@@ -71,8 +83,12 @@ public class Chunk {
     Validate bytes before we read them
     Use checksums
      */
-    private boolean chunkIsValid() {
-        // ToDo Check the checksums for every slice of the chunk
+    private boolean chunkIsValid(byte[] chunk) {
+        Checksum[] checksumArray = getChecksums(chunk);
+        if (checksumArray == null) return false;
+        for (int i = 0; i < checksums.length; i++) {
+            if (!checksumArray[i].equals(checksums[i])) return false;
+        }
         return true;
     }
 
@@ -85,11 +101,12 @@ public class Chunk {
     public byte[] getChunkBytes() {
         try {
             byte[] chunk = Files.readAllBytes(Paths.get(getWholePath()));
-            if (chunkIsValid()) {
+            if (chunkIsValid(chunk)) {
                 return chunk;
             }
             else {
-                // ToDo Send message to controller for chunk repair
+                System.err.println("Found invalid checksum for chunk " + path + filename + ", sequence #" + chunkMetadata.getSequenceNumber());
+                return null;
             }
         } catch (IOException e) {
             System.err.println("Failed to read file from disc " + e);
@@ -101,7 +118,7 @@ public class Chunk {
     /*
         Write a byte[] to local storage
          */
-    private void writeToDisk(byte[] bytes) {
+    public void writeToDisk(byte[] bytes) {
         File outputFile = new File(getWholePath());
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(bytes);

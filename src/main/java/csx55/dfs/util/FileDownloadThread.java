@@ -28,6 +28,7 @@ public class FileDownloadThread implements Runnable {
 
     @Override
     public void run() {
+        // FIXME Good place for a barrier/latch!
         while (waitingForChunks) { }
         writeFile();
     }
