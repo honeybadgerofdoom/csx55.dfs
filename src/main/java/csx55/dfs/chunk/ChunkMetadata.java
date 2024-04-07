@@ -31,6 +31,11 @@ public class ChunkMetadata extends Event implements Comparable<ChunkMetadata> {
         super(bytes);
     }
 
+    public void updateMetadata() {
+        this.timestamp = LocalDateTime.now().format((CUSTOM_FORMATTER));
+        this.versionNumber++;
+    }
+
     public int getVersionNumber() {
         return versionNumber;
     }

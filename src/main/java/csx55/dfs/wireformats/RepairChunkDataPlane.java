@@ -19,6 +19,18 @@ public class RepairChunkDataPlane extends Event {
         super(bytes);
     }
 
+    public byte[] getChunkBytes() {
+        return chunkBytes;
+    }
+
+    public String getFilepath() {
+        return filepath;
+    }
+
+    public int getSequenceNumber() {
+        return sequenceNumber;
+    }
+
     @Override
     protected void marshall() throws IOException {
         marshallBytes(chunkBytes);

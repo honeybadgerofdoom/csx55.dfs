@@ -94,7 +94,6 @@ public class Client implements Node {
     Handle download data plane reply
      */
     private void handleDownloadDataPlaneReply(DownloadDataPlaneReply downloadDataPlaneReply) {
-        System.out.println("Received DownloadDataPlaneReply for '" + downloadDataPlaneReply.getFilename() + "(" + downloadDataPlaneReply.getSequenceNumber() + ")'");
         downloadThreadMap.get(downloadDataPlaneReply.getFilename()).addChunk(downloadDataPlaneReply);
     }
 

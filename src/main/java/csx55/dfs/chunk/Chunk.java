@@ -118,7 +118,7 @@ public class Chunk {
     /*
         Write a byte[] to local storage
          */
-    private void writeToDisk(byte[] bytes) {
+    public void writeToDisk(byte[] bytes) {
         File outputFile = new File(getWholePath());
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(bytes);

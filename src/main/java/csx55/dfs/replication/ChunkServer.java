@@ -181,10 +181,7 @@ public class ChunkServer implements Node {
      */
     private void handleRepairChunkDataPlane(RepairChunkDataPlane repairChunkDataPlane) {
         System.out.println(repairChunkDataPlane);
-        /**
-         * ToDo
-         *  - Find the old (corrupted) chunk, delete it, create a new chunk out of this message contents, add it.
-         */
+        chunkManager.repairChunk(repairChunkDataPlane);
     }
 
 
@@ -192,7 +189,6 @@ public class ChunkServer implements Node {
     Handle RepairChunkControlPlaneReply
      */
     private void handleRepairChunkControlPlaneReply(RepairChunkControlPlaneReply repairChunkControlPlaneReply) {
-        System.out.println("Received RepairChunkControlPlaneReply Event | " + repairChunkControlPlaneReply);
         byte[] chunkBytes = chunkManager.retrieveChunk(repairChunkControlPlaneReply.getFilepath(), repairChunkControlPlaneReply.getSequenceNumber());
         NodeProxy clientProxy = repairChunkControlPlaneReply.getClientProxy();
         NodeProxy chunkProxy = repairChunkControlPlaneReply.getChunkServerProxy();
@@ -205,7 +201,6 @@ public class ChunkServer implements Node {
                         repairChunkControlPlaneReply.getSequenceNumber(),
                         1
                 );
-        System.out.println("Sending DownloadDataPlaneReply to Client '" + repairChunkControlPlaneReply.getClientProxy() + "': " + downloadDataPlaneReply);
         sendData(clientProxy.getId(), downloadDataPlaneReply);
         RepairChunkDataPlane repairChunkDataPlane =
                 new RepairChunkDataPlane(
