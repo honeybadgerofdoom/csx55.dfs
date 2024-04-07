@@ -180,7 +180,6 @@ public class ChunkServer implements Node {
     Handle RepairChunkDataPlane
      */
     private void handleRepairChunkDataPlane(RepairChunkDataPlane repairChunkDataPlane) {
-        System.out.println(repairChunkDataPlane);
         chunkManager.repairChunk(repairChunkDataPlane);
     }
 

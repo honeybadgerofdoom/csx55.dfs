@@ -52,7 +52,7 @@ public class ChunkManager {
             if (chunk.isTarget(repairChunkDataPlane.getFilepath(), repairChunkDataPlane.getSequenceNumber())) {
                 chunk.getChunkMetadata().updateMetadata();
                 chunk.writeToDisk(repairChunkDataPlane.getChunkBytes());
-                String chunkName = repairChunkDataPlane.getFilepath() + "(" + repairChunkDataPlane.getSequenceNumber() + ")";
+                String chunkName = repairChunkDataPlane.getFilepath() + "_" + repairChunkDataPlane.getSequenceNumber();
                 System.out.println("Chunk '" + chunkName + "' repaired.");
                 break;
             }
