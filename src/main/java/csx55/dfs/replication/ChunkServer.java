@@ -14,6 +14,9 @@ import java.net.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 /*
@@ -29,11 +32,13 @@ public class ChunkServer implements Node {
     private int portNumber;
     private String id;
     private final ChunkManager chunkManager;
+    private final ConcurrentMap<String, Socket> socketMap;
 
     public ChunkServer(String controllerIpAddress, int controllerPortNumber) {
         this.controllerIpAddress = controllerIpAddress;
         this.controllerPortNumber = controllerPortNumber;
         this.chunkManager = new ChunkManager();
+        this.socketMap = new ConcurrentHashMap<>();
     }
 
 
@@ -155,6 +160,9 @@ public class ChunkServer implements Node {
                 case Protocol.PRINT_CHUNKS:
                     chunkManager.printChunks();
                     break;
+                case Protocol.REPAIR_CHUNK_CONTROL_PLANE_REPLY:
+                    handleRepairChunkControlPlaneReply((RepairChunkControlPlaneReply) event);
+                    break;
                 case Protocol.POKE:
                     handlePoke((Poke) event);
                     break;
@@ -166,12 +174,56 @@ public class ChunkServer implements Node {
 
 
     /*
+    Handle RepairChunkControlPlaneReply
+     */
+    private void handleRepairChunkControlPlaneReply(RepairChunkControlPlaneReply repairChunkControlPlaneReply) {
+        System.out.println(repairChunkControlPlaneReply);
+        byte[] chunkBytes = chunkManager.retrieveChunk(repairChunkControlPlaneReply.getFilepath(), repairChunkControlPlaneReply.getSequenceNumber());
+        NodeProxy clientProxy = repairChunkControlPlaneReply.getClientProxy();
+        NodeProxy chunkProxy = repairChunkControlPlaneReply.getChunkServerProxy();
+        checkSocketMap(clientProxy);
+        checkSocketMap(chunkProxy);
+        // ToDo Send a DownloadDataPlaneReply to the Client
+        DownloadDataPlaneReply downloadDataPlaneReply =
+                new DownloadDataPlaneReply(
+                    chunkBytes,
+                    repairChunkControlPlaneReply.getFilepath(),
+                    repairChunkControlPlaneReply.getSequenceNumber(),
+                    0
+                );
+        sendData(clientProxy.getId(), downloadDataPlaneReply);
+    }
+
+    private void checkSocketMap(NodeProxy nodeProxy) {
+        if (!socketMap.containsKey(nodeProxy.getId())) {
+            addSocketRef(nodeProxy);
+        }
+    }
+
+    private synchronized void sendData(String nodeId, Event event) {
+        try {
+            TCPSender sender = new TCPSender(socketMap.get(nodeId));
+            sender.sendData(event.getBytes());
+        } catch (IOException e) {
+            System.err.println("Failed to send Event to " + nodeId);
+        }
+    }
+
+    private void addSocketRef(NodeProxy nodeProxy) {
+        String id = nodeProxy.getId();
+        try {
+            Socket socket = new Socket(nodeProxy.getIpAddress(), nodeProxy.getPortNumber());
+            socketMap.put(id, socket);
+        } catch (IOException e) {
+            System.err.println("Failed to add socket to socketMap for NodeProxy: " + nodeProxy);
+        }
+    }
+
+
+    /*
     Handle request for chunk download
      */
     private synchronized void handleDownloadRequest(DownloadDataPlaneRequest downloadDataPlaneRequest, Socket socket) {
-
-        System.out.println(downloadDataPlaneRequest);
-
         byte[] chunkBytes = chunkManager.retrieveChunk(downloadDataPlaneRequest.getFilename(), downloadDataPlaneRequest.getSequenceNumber());
         if (chunkBytes != null) {
             DownloadDataPlaneReply downloadDataPlaneReply =

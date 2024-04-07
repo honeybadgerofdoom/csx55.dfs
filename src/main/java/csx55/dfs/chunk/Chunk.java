@@ -64,7 +64,8 @@ public class Chunk {
     private Checksum[] getChecksums(byte[] chunk) {
         int numberOfSlices = chunk.length / Configs.SLICE_SIZE;  // There should be 8 slices always
         if (chunk.length % Configs.SLICE_SIZE != 0) {
-            System.err.println(chunk.length % Configs.SLICE_SIZE + " leftover bytes that don't fit into " + numberOfSlices + " slices");
+            System.err.println("Detected tampering with file!");
+            return null;
         }
         Checksum[] checksumArray = new Checksum[numberOfSlices];
         for (int i = 0; i < numberOfSlices; i++) {  // Iterate number of slices times
@@ -84,6 +85,7 @@ public class Chunk {
      */
     private boolean chunkIsValid(byte[] chunk) {
         Checksum[] checksumArray = getChecksums(chunk);
+        if (checksumArray == null) return false;
         for (int i = 0; i < checksums.length; i++) {
             if (!checksumArray[i].equals(checksums[i])) return false;
         }
@@ -104,7 +106,7 @@ public class Chunk {
             }
             else {
                 System.err.println("Found invalid checksum for chunk " + path + filename + ", sequence #" + chunkMetadata.getSequenceNumber());
-                // ToDo Send message to controller, controller tells a diff chunk server to send the chunk to the client, also repair this one
+                return null;
             }
         } catch (IOException e) {
             System.err.println("Failed to read file from disc " + e);

@@ -96,7 +96,8 @@ public class ChunkMetadata extends Event implements Comparable<ChunkMetadata> {
         if (getClass() != obj.getClass())
             return false;
         ChunkMetadata other = (ChunkMetadata) obj;
-        return this.filename.equals(other.getFilename()) && this.sequenceNumber == other.getSequenceNumber();
+        // ToDo Test this, I added 'this.path.equals(other.getPath()) &&' since last time I tested it
+        return this.path.equals(other.getPath()) && this.filename.equals(other.getFilename()) && this.sequenceNumber == other.getSequenceNumber();
     }
 
 }

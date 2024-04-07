@@ -17,6 +17,8 @@ public class Protocol {
     public static final int DOWNLOAD_DATA_PLANE_REQUEST = 9;
     public static final int DOWNLOAD_DATA_PLANE_REPLY = 10;
     public static final int REPAIR_CHUNK_CONTROL_PLANE_REQUEST = 11;
+    public static final int REPAIR_CHUNK_CONTROL_PLANE_REPLY = 12;
+    public static final int REPAIR_CHUNK_DATA_PLANE = 13;
     public static final int POKE = 100;
 
 }

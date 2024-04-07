@@ -11,10 +11,7 @@ import csx55.dfs.node.Node;
 import csx55.dfs.testing.ControllerCLIManager;
 import csx55.dfs.testing.Poke;
 import csx55.dfs.transport.TCPSender;
-import csx55.dfs.util.ChunkLocation;
-import csx55.dfs.util.ChunkServerInfo;
-import csx55.dfs.util.ChunkServerManager;
-import csx55.dfs.util.Configs;
+import csx55.dfs.util.*;
 import csx55.dfs.wireformats.*;
 
 
@@ -94,7 +91,21 @@ public class Controller implements Node {
     Handle repair request
      */
     private void handleRepairRequest(RepairChunkControlPlaneRequest repairChunkControlPlaneRequest) {
-        System.out.println(repairChunkControlPlaneRequest);
+        String filename = Configs.filenameFromPath(repairChunkControlPlaneRequest.getFilepath());
+        String path = Configs.pathFromPathAndName(repairChunkControlPlaneRequest.getFilepath());
+        ChunkServerProxy chunkServerProxy = chunkServerManager.getChunk(
+                filename,
+                path,
+                repairChunkControlPlaneRequest.getSequenceNumber(),
+                repairChunkControlPlaneRequest.getChunkServerProxy()
+        );
+        RepairChunkControlPlaneReply repairChunkControlPlaneReply = new RepairChunkControlPlaneReply(repairChunkControlPlaneRequest);
+        if (chunkServerProxy != null) {
+            chunkServerProxy.writeToSocket(repairChunkControlPlaneReply);
+        }
+        else {
+            System.err.println("Failed to get chunkServer with a valid chunk for " + repairChunkControlPlaneReply);
+        }
     }
 
 
